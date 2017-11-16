@@ -1,14 +1,16 @@
 package Gesture
 
 import android.content.Context
+import android.support.v7.app.AppCompatActivity
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 
 import java.util.ArrayList
 
-abstract class Controller(context: Context) : View(context), GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
-    private val gesture: GestureDetector = GestureDetector(context, this)
+abstract class Controller(context: Context) : AppCompatActivity(), GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+
+    var gesture: GestureDetector? = GestureDetector(context, this)
 
     private val saved: IntArray = IntArray(2)
     private val sourceList: MutableList<InputSource>

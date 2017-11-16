@@ -1,13 +1,16 @@
 package lkuich.controlhubclient
 
+import Gesture.Controller
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.content.pm.ActivityInfo
 import android.app.Activity
+import android.content.Context
 
-class CanvasActivity : AppCompatActivity() {
+class CanvasActivity : Controller(applicationContext) {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -30,6 +33,6 @@ class CanvasActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_IMMERSIVE)
 
-        setContentView(CanvasView(this)) //show the drawing view
+        // setContentView(CanvasView(this)) //show the drawing view
     }
 }

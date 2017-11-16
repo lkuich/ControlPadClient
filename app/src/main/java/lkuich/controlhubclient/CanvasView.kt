@@ -5,8 +5,9 @@ import Gesture.TouchEvents
 import android.content.Context
 import android.graphics.*
 
-class CanvasView(c: Context) : Controller(c), TouchEvents {
-
+class CanvasView {
+// class CanvasView(c: Context) : Controller(c), TouchEvents {
+/*
     private var mCanvas: Canvas? = null
     private var drawBitmap: Bitmap? = null
 
@@ -52,4 +53,5 @@ class CanvasView(c: Context) : Controller(c), TouchEvents {
 
     override fun touchUp() {
     }
+*/
 }
