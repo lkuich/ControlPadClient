@@ -8,9 +8,9 @@ import android.view.View
 
 import java.util.ArrayList
 
-abstract class Controller(context: Context) : AppCompatActivity(), GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+abstract class Controller : AppCompatActivity(), GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
-    var gesture: GestureDetector? = GestureDetector(context, this)
+    private var gesture: GestureDetector? = null
 
     private val saved: IntArray = IntArray(2)
     private val sourceList: MutableList<InputSource>
@@ -27,11 +27,12 @@ abstract class Controller(context: Context) : AppCompatActivity(), GestureDetect
         @Synchronized get() = this.saved[1]
 
     init {
-
         sourceList = ArrayList()
         sourceList.add(InputSource())
 
         touchPoints = 0
+
+        gesture = GestureDetector(this, this)
     }
 
     fun singleTap() {
@@ -154,7 +155,7 @@ abstract class Controller(context: Context) : AppCompatActivity(), GestureDetect
             }
         }
         ControllerToggles.setPreviousCommand(event.action)
-        return this.gesture.onTouchEvent(event)
+        return true// return this.gesture.onTouchEvent(event)
     }
 
     protected fun getSource(index: Int): InputSource {

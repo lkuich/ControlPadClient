@@ -9,7 +9,7 @@ import android.content.pm.ActivityInfo
 import android.app.Activity
 import android.content.Context
 
-class CanvasActivity : Controller(applicationContext) {
+class CanvasActivity : Controller() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
