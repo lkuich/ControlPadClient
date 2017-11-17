@@ -11,12 +11,12 @@ abstract class Controller(context: Context) : View(context), GestureDetector.OnG
     private val gesture: GestureDetector = GestureDetector(context, this)
 
     private val saved: IntArray = IntArray(2)
-    private val sourceList: MutableList<InputSource>
+    private val sourceList: ArrayList<InputSource> = ArrayList()
 
     private var touchPoints: Int = 0
     private var touchDown: Boolean = false
 
-    internal var doubleTapIncrement = 0
+    private var doubleTapIncrement = 0
 
     protected val savedX: Int
         @Synchronized get() = this.saved[0]
@@ -25,11 +25,7 @@ abstract class Controller(context: Context) : View(context), GestureDetector.OnG
         @Synchronized get() = this.saved[1]
 
     init {
-
-        sourceList = ArrayList()
         sourceList.add(InputSource())
-
-        touchPoints = 0
     }
 
     fun singleTap() {

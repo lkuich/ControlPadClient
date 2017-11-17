@@ -1,0 +1,22 @@
+﻿syntax = "proto3";
+
+package service;
+
+service Robot {
+  rpc PressKey (Key) returns(Response) {}
+  rpc MoveMouse (MouseCoords) returns(Response) {}
+}
+
+// The requests the bundle by ID
+message Key {
+  uint32 id = 1;
+}
+
+message MouseCoords {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+message Response {
+  bool received = 1;
+}
