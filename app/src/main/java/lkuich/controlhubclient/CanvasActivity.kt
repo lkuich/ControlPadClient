@@ -37,85 +37,31 @@ class Axis (var x: Float, var y: Float) {
     fun greatestKey(): Int {
         if (y > 0 && x > 0) { // Up, right
             if (x > y)
-                return keyCode('w')
-            else if (y > x)
                 return keyCode('d')
+            else if (y > x)
+                return keyCode('w')
         }
         if (y > 0 && x < 0) { // Up, left
             if (x *-1 > y)
-                return keyCode('s')
+                return keyCode('a')
             else if (y > x *-1)
-                return keyCode('d')
+                return keyCode('w')
         }
         if (y < 0 && x > 0) { // Down, right
             if (x > y *-1)
-                return keyCode('w')
+                return keyCode('d')
             else if (y *-1 > x)
-                return keyCode('a')
+                return keyCode('s')
         }
         if (y < 0 && x < 0) { // Down, left
             if (x < y)
-                return keyCode('s')
-            else if (y < x)
                 return keyCode('a')
+            else if (y < x)
+                return keyCode('s')
         }
-
-        /*else if (x < 0) {
-            if (x > y)
-                return keyCode('d')
-            else
-                return keyCode('w')
-        } else if (y < 0) {
-            if (x > 0) {
-                if (x > y)
-                    return keyCode('a')
-                else
-                    return keyCode('s')
-            } else if (x < 0) {
-                if (x > y)
-                    return keyCode('d')
-                else
-                    return keyCode('s')
-            }
-        }
-
-        if (x > 0) {
-            if (y > 0) {
-                if (y > x)
-                    return keyCode('w')
-                else if (x > y)
-                    return keyCode('d')
-            } else {
-                if (y > x)
-                    return keyCode('w')
-                else if (x > y)
-                    return keyCode('d')
-            }
-        } else if (x < 0) {
-            if (y > 0) {
-
-            } else {
-
-            }
-        }*/
 
         return 0x03
     }
-
-    private fun findMax(vararg vals: Float): Float {
-        var max = java.lang.Float.NEGATIVE_INFINITY
-        for (d in vals)
-            if (d > max) max = d
-        return max
-    }
-
-    private fun findMin(vararg vals: Float): Float {
-        var min = java.lang.Float.POSITIVE_INFINITY
-        for (d in vals)
-            if (d < min) min = d
-        return min
-    }
-
 }
 
 class CanvasActivity : AppCompatActivity() {
@@ -130,11 +76,23 @@ class CanvasActivity : AppCompatActivity() {
         // Task = GrpcTask()
 
         fullscreen()
-        analogTouchEvents()
+        analogTouchEvents(R.id.left_analog_inner, { x, y ->
+            val axis = Axis(x, y)
+
+            // val sensitivity = 1
+
+            val toSend = axis.greatestKey()
+            if (previouslySent != toSend)
+                sendKey(toSend)
+        })
+        analogTouchEvents(R.id.right_analog_inner, {x, y ->
+            sendMouse(x.toInt(), y.toInt())
+        })
     }
 
-    fun analogTouchEvents() {
-        val analog = findViewById<ImageView>(R.id.left_analog_inner)
+    // Replace bool with function
+    fun analogTouchEvents(id: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit) {
+        val analog = findViewById<ImageView>(id)
         var startCoords: FloatArray? = null
 
         analog.setOnTouchListener(
@@ -147,22 +105,13 @@ class CanvasActivity : AppCompatActivity() {
                     val evtX = evt.rawX
                     val evtY = evt.rawY
 
-                    Log.v("X", evtX.toString())
-                    Log.v("Y", evtY.toString())
-
-                    analog.x = evtX
-                    analog.y = evtY
+                    analog.x = evtX - analog.width / 2
+                    analog.y = evtY - analog.height / 2
 
                     val relativeX = startCoords!![0] - evtX
                     val relativeY = startCoords!![1] - evtY
 
-                    val axis = Axis(relativeY, relativeX)
-
-                    // val sensitivity = 1
-
-                    val toSend = axis.greatestKey()
-                    if (previouslySent != toSend)
-                        sendKey(toSend)
+                    onMove(relativeX, relativeY)
                 }
                 MotionEvent.ACTION_UP -> {
                     analog.x = startCoords!![0]
@@ -190,21 +139,26 @@ class CanvasActivity : AppCompatActivity() {
     }
 
     fun sendKey(keyCode: Int) {
-        val task = GrpcTask(Services.Key.newBuilder().setId(keyCode).build())
+        val task = KeyboardTask(Services.Key.newBuilder().setId(keyCode).build())
         task.execute()
 
         previouslySent = keyCode
     }
+
+    fun sendMouse(x: Int, y: Int) {
+        val task = MouseTask(Services.MouseCoords.newBuilder().setX(x).setY(y).build())
+        task.execute()
+    }
 }
 
-private class GrpcTask(private var keyToSend: Services.Key) : AsyncTask<Void, Void, String>() {
+private abstract class GrpcTask : AsyncTask<Void, Void, String>() {
     private val host: String = "10.78.78.130"
     private val port: Int = 50051
 
     private var channel: ManagedChannel? = null
-    private var stub: RobotGrpc.RobotBlockingStub? = null
+    protected var stub: RobotGrpc.RobotBlockingStub? = null
 
-    // public var keyToSend: Services.Key? = null
+    abstract fun commands(): String
 
     override fun onPreExecute() {
         // Can get the command to send here first
@@ -217,8 +171,7 @@ private class GrpcTask(private var keyToSend: Services.Key) : AsyncTask<Void, Vo
     override fun doInBackground(vararg nothing: Void): String {
         try {
             // val mouseCoords = Services.MouseCoords.newBuilder().setX(x).setY(y)
-            val response = stub?.pressKey(keyToSend)
-            return response?.received.toString()
+            return commands()
         } catch (e: Exception) {
             val sw = StringWriter()
             val pw = PrintWriter(sw)
@@ -226,7 +179,6 @@ private class GrpcTask(private var keyToSend: Services.Key) : AsyncTask<Void, Vo
             pw.flush()
             return String.format("Failed... : %n%s", sw)
         }
-
     }
 
     override fun onPostExecute(result: String) {
@@ -237,5 +189,19 @@ private class GrpcTask(private var keyToSend: Services.Key) : AsyncTask<Void, Vo
         }
 
         result // TODO: This is the recieved message
+    }
+}
+
+private class MouseTask(private var mousCoords: Services.MouseCoords) : GrpcTask() {
+    override fun commands(): String {
+        val response = stub?.moveMouse(mousCoords)
+        return response?.received.toString()
+    }
+}
+
+private class KeyboardTask(private var keyToSend: Services.Key) : GrpcTask() {
+    override fun commands(): String {
+        val response = stub?.pressKey(keyToSend)
+        return response?.received.toString()
     }
 }
