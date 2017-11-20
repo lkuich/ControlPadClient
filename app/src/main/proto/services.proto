@@ -10,6 +10,7 @@ service Robot {
 // The requests the bundle by ID
 message Key {
   uint32 id = 1;
+  bool combo = 2;
 }
 
 message MouseCoords {

@@ -29,43 +29,73 @@ import java.util.concurrent.CountDownLatch
 
 class Axis (var x: Float, var y: Float) {
 
-    fun keyCode(key: Char): Int {
-        when (key.toLowerCase()) {
-            'w' -> return 0x57
-            'a' -> return 0x44
-            's' -> return 0x53
-            'd' -> return 0x41
+    fun keyCode(vararg keys: Char): IntArray {
+        val out = mutableListOf<Int>()
+        for (key in keys) {
+            when (key.toLowerCase()) {
+                'w' -> out.add(0x57)
+                'a' -> out.add(0x44)
+                's' -> out.add(0x53)
+                'd' -> out.add(0x41)
+            }
         }
-        return 0x03
+        return out.toIntArray()
     }
 
-    fun greatestKey(): Int {
-        if (y > 0 && x > 0) { // Up, right
+    fun greatestKey(): IntArray {
+        val min = 1
+        val max = 4
+
+        if (y >= 0 && x >= 0) { // Up, right
             if (x > y)
-                return keyCode('d')
+                if (x / y in min..max)
+                    return keyCode('d','w')
+                else
+                    return keyCode('d')
             else if (y > x)
-                return keyCode('w')
+                if (y / x in min..max)
+                    return keyCode('w','d')
+                else
+                    return keyCode('w')
         }
-        if (y > 0 && x < 0) { // Up, left
+        if (y >= 0 && x <= 0) { // Up, left
             if (x *-1 > y)
-                return keyCode('a')
+                if (x *-1 / y in min..max)
+                    return keyCode('a','w')
+                else
+                    return keyCode('a')
             else if (y > x *-1)
-                return keyCode('w')
+                if (y / x *-1 in min..max)
+                    return keyCode('w','a')
+                else
+                    return keyCode('w')
         }
-        if (y < 0 && x > 0) { // Down, right
+        if (y <= 0 && x >= 0) { // Down, right
             if (x > y *-1)
-                return keyCode('d')
-            else if (y *-1 > x)
-                return keyCode('s')
+                if (x / y *-1 in min..max)
+                    return keyCode('d', 's')
+                else
+                    return keyCode('d')
+            else if (x < y *-1)
+                if (y *-1 / x in min..max)
+                    return keyCode('s', 'd')
+                else
+                    return keyCode('s')
         }
-        if (y < 0 && x < 0) { // Down, left
+        if (y <= 0 && x <= 0) { // Down, left
             if (x < y)
-                return keyCode('a')
+                if (y / x in min..max)
+                    return keyCode('a', 's')
+                else
+                    return keyCode('a')
             else if (y < x)
-                return keyCode('s')
+                if (x / y in min..max)
+                    return keyCode('s', 'a')
+                else
+                    return keyCode('s')
         }
 
-        return 0x03
+        return kotlin.IntArray(0x03)
     }
 }
 
@@ -84,17 +114,26 @@ class CanvasActivity : AppCompatActivity() {
         mouseStream = MouseStream(stub)
         keyboardStream = KeyboardStream(stub)
 
-        analogTouchEvents(R.id.left_analog_inner, { x, y ->
+        analogStick(R.id.left_analog_inner, { x, y ->
             val axis = Axis(x, y)
 
             // val sensitivity = 1
-            sendKey(axis.greatestKey())
-        })
+            val keys = axis.greatestKey()
+            for (key in keys)
+                sendKey(key, keys.size > 1)
 
-        analogTouchEvents(R.id.right_analog_inner, {x, y ->
+            Log.v("y/x:", (y / x).toString())
+        }, true)
+
+        analogStick(R.id.right_analog_inner, {x, y ->
             // Log.v("mouse:", x.toString() + "," + y.toString())
             sendMouse(x.toInt(), y.toInt())
-        })
+        }, false)
+
+        button(R.id.a_button, 0x20) // Spacebar
+        button(R.id.b_button, 0x11) // Ctrl
+        button(R.id.x_button, 0x52) // R
+        button(R.id.y_button, 0x32) // 2
     }
 
     fun createStub(): RobotGrpc.RobotStub {
@@ -105,8 +144,23 @@ class CanvasActivity : AppCompatActivity() {
         return RobotGrpc.newStub(channel)
     }
 
+    fun button(id: Int, key: Int) {
+        val button = findViewById<ImageView>(id)
+        button.setOnTouchListener(
+            View.OnTouchListener { v, evt ->
+                when (evt.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        sendKey(key, false)
+                    }
+                    MotionEvent.ACTION_UP -> {
+                    }
+                }
+                return@OnTouchListener true
+            })
+    }
+
     // Replace bool with function
-    fun analogTouchEvents(id: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit) {
+    fun analogStick(id: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, sendCancel: Boolean) {
         val analog = findViewById<ImageView>(id)
         var analogStartCoords: FloatArray? = null
         var startCoords: FloatArray? = null
@@ -134,7 +188,8 @@ class CanvasActivity : AppCompatActivity() {
                     analog.x = analogStartCoords!![0]
                     analog.y = analogStartCoords!![1]
 
-                    sendKey(0x03)
+                    if (sendCancel)
+                        sendKey(0x03, false)
                 }
             }
             return@OnTouchListener true
@@ -155,9 +210,9 @@ class CanvasActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_IMMERSIVE)
     }
 
-    fun sendKey(keyCode: Int) {
-        if (keyboardStream?.lastSent != keyCode)
-            keyboardStream?.sendKey(keyCode)
+    fun sendKey(keyCode: Int, combo: Boolean) {
+        // if (keyboardStream?.lastSent != keyCode)
+        keyboardStream?.sendKey(keyCode, combo)
     }
 
     fun sendMouse(x: Int, y: Int) {
@@ -174,9 +229,9 @@ private class KeyboardStream(stub: RobotGrpc.RobotStub) : GrpcStream() {
         keyboardRequestObserver = stub.pressKey(responseObserver)
     }
 
-    fun sendKey(keyCode: Int) {
+    fun sendKey(keyCode: Int, combo: Boolean) {
         try {
-            val request = Services.Key.newBuilder().setId(keyCode).build()
+            val request = Services.Key.newBuilder().setId(keyCode).setCombo(combo).build()
             keyboardRequestObserver?.onNext(request) // Sends the coords
         } catch (e: RuntimeException) {
             // Cancel RPC
