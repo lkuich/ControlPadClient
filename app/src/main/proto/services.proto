@@ -3,8 +3,8 @@
 package service;
 
 service Robot {
-  rpc PressKey (Key) returns(Response) {}
-  rpc MoveMouse (MouseCoords) returns(Response) {}
+  rpc PressKey (stream Key) returns(stream Response) {}
+  rpc MoveMouse (stream MouseCoords) returns(stream Response) {}
 }
 
 // The requests the bundle by ID

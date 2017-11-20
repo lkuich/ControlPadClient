@@ -85,7 +85,9 @@ class CanvasActivity : AppCompatActivity() {
             if (previouslySent != toSend)
                 sendKey(toSend)
         })
+
         analogTouchEvents(R.id.right_analog_inner, {x, y ->
+            // Log.v("mouse:", x.toString() + "," + y.toString())
             sendMouse(x.toInt(), y.toInt())
         })
     }
@@ -93,13 +95,15 @@ class CanvasActivity : AppCompatActivity() {
     // Replace bool with function
     fun analogTouchEvents(id: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit) {
         val analog = findViewById<ImageView>(id)
+        var analogStartCoords: FloatArray? = null
         var startCoords: FloatArray? = null
 
         analog.setOnTouchListener(
                 View.OnTouchListener { v, evt ->
             when (evt.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    startCoords = floatArrayOf(analog.x, analog.y)
+                    analogStartCoords = floatArrayOf(analog.x, analog.y)
+                    startCoords = floatArrayOf(evt.rawX, evt.rawY)
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val evtX = evt.rawX
@@ -114,8 +118,8 @@ class CanvasActivity : AppCompatActivity() {
                     onMove(relativeX, relativeY)
                 }
                 MotionEvent.ACTION_UP -> {
-                    analog.x = startCoords!![0]
-                    analog.y = startCoords!![1]
+                    analog.x = analogStartCoords!![0]
+                    analog.y = analogStartCoords!![1]
 
                     sendKey(0x03)
                 }
@@ -150,6 +154,8 @@ class CanvasActivity : AppCompatActivity() {
         task.execute()
     }
 }
+
+
 
 private abstract class GrpcTask : AsyncTask<Void, Void, String>() {
     private val host: String = "10.78.78.130"
