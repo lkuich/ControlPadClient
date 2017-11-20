@@ -21,6 +21,11 @@ import java.util.concurrent.TimeUnit
 
 import service.RobotGrpc
 import service.Services
+import android.R.attr.countDown
+import io.grpc.stub.StreamObserver
+import java.util.*
+import java.util.concurrent.CountDownLatch
+
 
 class Axis (var x: Float, var y: Float) {
 
@@ -65,31 +70,39 @@ class Axis (var x: Float, var y: Float) {
 }
 
 class CanvasActivity : AppCompatActivity() {
-    private var previouslySent: Int = 0x03
+    private var mouseStream: MouseStream? = null
+    private var keyboardStream: KeyboardStream? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_canvas)
         // supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        // Task = GrpcTask()
-
         fullscreen()
+
+        val stub = createStub()
+        mouseStream = MouseStream(stub)
+        keyboardStream = KeyboardStream(stub)
+
         analogTouchEvents(R.id.left_analog_inner, { x, y ->
             val axis = Axis(x, y)
 
             // val sensitivity = 1
-
-            val toSend = axis.greatestKey()
-            if (previouslySent != toSend)
-                sendKey(toSend)
+            sendKey(axis.greatestKey())
         })
 
         analogTouchEvents(R.id.right_analog_inner, {x, y ->
             // Log.v("mouse:", x.toString() + "," + y.toString())
             sendMouse(x.toInt(), y.toInt())
         })
+    }
+
+    fun createStub(): RobotGrpc.RobotStub {
+        val host: String = "10.78.78.130"
+        val port: Int = 50051
+
+        val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
+        return RobotGrpc.newStub(channel)
     }
 
     // Replace bool with function
@@ -143,19 +156,119 @@ class CanvasActivity : AppCompatActivity() {
     }
 
     fun sendKey(keyCode: Int) {
-        val task = KeyboardTask(Services.Key.newBuilder().setId(keyCode).build())
-        task.execute()
-
-        previouslySent = keyCode
+        if (keyboardStream?.lastSent != keyCode)
+            keyboardStream?.sendKey(keyCode)
     }
 
     fun sendMouse(x: Int, y: Int) {
-        val task = MouseTask(Services.MouseCoords.newBuilder().setX(x).setY(y).build())
-        task.execute()
+        val concat = x.toString() + "," + y.toString()
+        if (mouseStream?.lastSent != concat)
+            mouseStream?.moveMouse(x, y)
     }
 }
 
+private class KeyboardStream(stub: RobotGrpc.RobotStub) : GrpcStream() {
+    var lastSent: Int = 0
 
+    init {
+        keyboardRequestObserver = stub.pressKey(responseObserver)
+    }
+
+    fun sendKey(keyCode: Int) {
+        try {
+            val request = Services.Key.newBuilder().setId(keyCode).build()
+            keyboardRequestObserver?.onNext(request) // Sends the coords
+        } catch (e: RuntimeException) {
+            // Cancel RPC
+            responseObserver?.onError(e)
+            throw e
+        }
+        // requestObserver?.onCompleted()
+
+        if (failed != null) {
+            throw RuntimeException(failed)
+        }
+
+        lastSent = keyCode
+    }
+
+    override fun onResponseNext(response: Services.Response) {
+        // Response
+    }
+
+    override fun onResponseError(t: Throwable) {
+        // Error
+    }
+
+    override fun onResponseCompleted() {
+        // Complete
+    }
+}
+
+private class MouseStream(stub: RobotGrpc.RobotStub) : GrpcStream() {
+    var lastSent: String = ""
+
+    init {
+        mouseRequestObserver = stub.moveMouse(responseObserver)
+    }
+
+    fun moveMouse(x: Int, y: Int) {
+        try {
+            val request = Services.MouseCoords.newBuilder().setX(x).setY(y).build()
+            mouseRequestObserver?.onNext(request) // Sends the coords
+        } catch (e: RuntimeException) {
+            // Cancel RPC
+            responseObserver?.onError(e)
+            throw e
+        }
+        // requestObserver?.onCompleted()
+
+        if (failed != null) {
+            throw RuntimeException(failed)
+        }
+        lastSent = x.toString() + "," + y.toString();
+    }
+
+    override fun onResponseNext(response: Services.Response) {
+        // Response
+    }
+
+    override fun onResponseError(t: Throwable) {
+        // Error
+    }
+
+    override fun onResponseCompleted() {
+        // Complete
+    }
+}
+
+abstract private class GrpcStream {
+    abstract fun onResponseNext(response: Services.Response)
+    abstract fun onResponseError(t: Throwable)
+    abstract fun onResponseCompleted()
+
+    protected var responseObserver: StreamObserver<Services.Response>? = null
+    protected var mouseRequestObserver: StreamObserver<Services.MouseCoords>? = null
+    protected var keyboardRequestObserver: StreamObserver<Services.Key>? = null
+
+    protected var failed: Throwable? = null
+
+    init {
+        responseObserver = object : StreamObserver<Services.Response> {
+            override fun onNext(response: Services.Response) {
+                onResponseNext(response)
+            }
+
+            override fun onError(t: Throwable) {
+                onResponseError(t)
+            }
+
+            override fun onCompleted() {
+                onResponseCompleted()
+            }
+        }
+    }
+}
 
 private abstract class GrpcTask : AsyncTask<Void, Void, String>() {
     private val host: String = "10.78.78.130"
@@ -198,6 +311,7 @@ private abstract class GrpcTask : AsyncTask<Void, Void, String>() {
     }
 }
 
+/*
 private class MouseTask(private var mousCoords: Services.MouseCoords) : GrpcTask() {
     override fun commands(): String {
         val response = stub?.moveMouse(mousCoords)
@@ -211,3 +325,4 @@ private class KeyboardTask(private var keyToSend: Services.Key) : GrpcTask() {
         return response?.received.toString()
     }
 }
+*/
