@@ -46,7 +46,7 @@ class Axis (var x: Float, var y: Float) {
         val min = 1
         val max = 4
 
-        if (y >= 0 && x >= 0) { // Up, right
+        if (y > 0 && x > 0) { // Up, right
             if (x > y)
                 if (x / y in min..max)
                     return keyCode('d','w')
@@ -58,7 +58,7 @@ class Axis (var x: Float, var y: Float) {
                 else
                     return keyCode('w')
         }
-        if (y >= 0 && x <= 0) { // Up, left
+        if (y > 0 && x < 0) { // Up, left
             if (x *-1 > y)
                 if (x *-1 / y in min..max)
                     return keyCode('a','w')
@@ -70,7 +70,7 @@ class Axis (var x: Float, var y: Float) {
                 else
                     return keyCode('w')
         }
-        if (y <= 0 && x >= 0) { // Down, right
+        if (y < 0 && x > 0) { // Down, right
             if (x > y *-1)
                 if (x / y *-1 in min..max)
                     return keyCode('d', 's')
@@ -82,20 +82,20 @@ class Axis (var x: Float, var y: Float) {
                 else
                     return keyCode('s')
         }
-        if (y <= 0 && x <= 0) { // Down, left
+        if (y < 0 && x < 0) { // Down, left
             if (x < y)
-                if (y / x in min..max)
+                if (y *-1 / x *-1 in min..max)
                     return keyCode('a', 's')
                 else
                     return keyCode('a')
             else if (y < x)
-                if (x / y in min..max)
+                if (x *-1 / y *-1 in min..max)
                     return keyCode('s', 'a')
                 else
                     return keyCode('s')
         }
 
-        return kotlin.IntArray(0x03)
+        return intArrayOf(0x03)
     }
 }
 
@@ -119,8 +119,7 @@ class CanvasActivity : AppCompatActivity() {
 
             // val sensitivity = 1
             val keys = axis.greatestKey()
-            for (key in keys)
-                sendKey(key, keys.size > 1)
+            sendKey(keys[0], if (keys.size > 1) keys[1] else 0)
 
             Log.v("y/x:", (y / x).toString())
         }, true)
@@ -137,7 +136,7 @@ class CanvasActivity : AppCompatActivity() {
     }
 
     fun createStub(): RobotGrpc.RobotStub {
-        val host: String = "10.78.78.130"
+        val host: String = getString(R.string.grpc_ip)
         val port: Int = 50051
 
         val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
@@ -150,9 +149,10 @@ class CanvasActivity : AppCompatActivity() {
             View.OnTouchListener { v, evt ->
                 when (evt.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        sendKey(key, false)
+                        sendKey(key)
                     }
                     MotionEvent.ACTION_UP -> {
+                        sendKey(0x03)
                     }
                 }
                 return@OnTouchListener true
@@ -189,7 +189,7 @@ class CanvasActivity : AppCompatActivity() {
                     analog.y = analogStartCoords!![1]
 
                     if (sendCancel)
-                        sendKey(0x03, false)
+                        sendKey(0x03)
                 }
             }
             return@OnTouchListener true
@@ -210,9 +210,9 @@ class CanvasActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_IMMERSIVE)
     }
 
-    fun sendKey(keyCode: Int, combo: Boolean) {
-        // if (keyboardStream?.lastSent != keyCode)
-        keyboardStream?.sendKey(keyCode, combo)
+    fun sendKey(firstKey: Int, secondKey: Int = 0) {
+        if (keyboardStream?.lastSent?.get(0) != firstKey || keyboardStream?.lastSent?.get(1) != secondKey)
+            keyboardStream?.sendKeys(firstKey, secondKey)
     }
 
     fun sendMouse(x: Int, y: Int) {
@@ -223,17 +223,17 @@ class CanvasActivity : AppCompatActivity() {
 }
 
 private class KeyboardStream(stub: RobotGrpc.RobotStub) : GrpcStream() {
-    var lastSent: Int = 0
+    var lastSent: IntArray = intArrayOf(0, 0)
 
     init {
         keyboardRequestObserver = stub.pressKey(responseObserver)
     }
 
-    fun sendKey(keyCode: Int, combo: Boolean) {
+    fun sendKeys(firstKey: Int, secondKey: Int = 0) {
         try {
-            val request = Services.Key.newBuilder().setId(keyCode).setCombo(combo).build()
-            keyboardRequestObserver?.onNext(request) // Sends the coords
-        } catch (e: RuntimeException) {
+            val request = Services.Key.newBuilder().setFirstId(firstKey).setSecondId(secondKey).build()
+            keyboardRequestObserver?.onNext(request)
+        } catch (e: java.lang.RuntimeException) {
             // Cancel RPC
             responseObserver?.onError(e)
             throw e
@@ -244,7 +244,7 @@ private class KeyboardStream(stub: RobotGrpc.RobotStub) : GrpcStream() {
             throw RuntimeException(failed)
         }
 
-        lastSent = keyCode
+        lastSent = intArrayOf(firstKey, secondKey)
     }
 
     override fun onResponseNext(response: Services.Response) {
@@ -294,75 +294,6 @@ private class MouseStream(stub: RobotGrpc.RobotStub) : GrpcStream() {
 
     override fun onResponseCompleted() {
         // Complete
-    }
-}
-
-abstract private class GrpcStream {
-    abstract fun onResponseNext(response: Services.Response)
-    abstract fun onResponseError(t: Throwable)
-    abstract fun onResponseCompleted()
-
-    protected var responseObserver: StreamObserver<Services.Response>? = null
-    protected var mouseRequestObserver: StreamObserver<Services.MouseCoords>? = null
-    protected var keyboardRequestObserver: StreamObserver<Services.Key>? = null
-
-    protected var failed: Throwable? = null
-
-    init {
-        responseObserver = object : StreamObserver<Services.Response> {
-            override fun onNext(response: Services.Response) {
-                onResponseNext(response)
-            }
-
-            override fun onError(t: Throwable) {
-                onResponseError(t)
-            }
-
-            override fun onCompleted() {
-                onResponseCompleted()
-            }
-        }
-    }
-}
-
-private abstract class GrpcTask : AsyncTask<Void, Void, String>() {
-    private val host: String = "10.78.78.130"
-    private val port: Int = 50051
-
-    private var channel: ManagedChannel? = null
-    protected var stub: RobotGrpc.RobotBlockingStub? = null
-
-    abstract fun commands(): String
-
-    override fun onPreExecute() {
-        // Can get the command to send here first
-        channel = ManagedChannelBuilder.forAddress(host, port)
-                .usePlaintext(true)
-                .build()
-        stub = RobotGrpc.newBlockingStub(channel)
-    }
-
-    override fun doInBackground(vararg nothing: Void): String {
-        try {
-            // val mouseCoords = Services.MouseCoords.newBuilder().setX(x).setY(y)
-            return commands()
-        } catch (e: Exception) {
-            val sw = StringWriter()
-            val pw = PrintWriter(sw)
-            e.printStackTrace(pw)
-            pw.flush()
-            return String.format("Failed... : %n%s", sw)
-        }
-    }
-
-    override fun onPostExecute(result: String) {
-        try {
-            channel!!.shutdown().awaitTermination(1, TimeUnit.SECONDS)
-        } catch (e: InterruptedException) {
-            Thread.currentThread().interrupt()
-        }
-
-        result // TODO: This is the recieved message
     }
 }
 
