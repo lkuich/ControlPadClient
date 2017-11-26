@@ -19,12 +19,9 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.concurrent.TimeUnit
 
-import service.RobotGrpc
+import service.StandardInputGrpc
 import service.Services
-import android.R.attr.countDown
 import io.grpc.stub.StreamObserver
-import java.util.*
-import java.util.concurrent.CountDownLatch
 
 
 class Axis (var x: Float, var y: Float) {
@@ -135,12 +132,12 @@ class CanvasActivity : AppCompatActivity() {
         button(R.id.y_button, 0x32) // 2
     }
 
-    fun createStub(): RobotGrpc.RobotStub {
+    fun createStub(): StandardInputGrpc.StandardInputStub {
         val host: String = getString(R.string.grpc_ip)
         val port: Int = 50051
 
         val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
-        return RobotGrpc.newStub(channel)
+        return StandardInputGrpc.newStub(channel)
     }
 
     fun button(id: Int, key: Int) {
@@ -222,7 +219,7 @@ class CanvasActivity : AppCompatActivity() {
     }
 }
 
-private class KeyboardStream(stub: RobotGrpc.RobotStub) : GrpcStream() {
+private class KeyboardStream(stub: StandardInputGrpc.StandardInputStub) : GrpcStream() {
     var lastSent: IntArray = intArrayOf(0, 0)
 
     init {
@@ -260,7 +257,7 @@ private class KeyboardStream(stub: RobotGrpc.RobotStub) : GrpcStream() {
     }
 }
 
-private class MouseStream(stub: RobotGrpc.RobotStub) : GrpcStream() {
+private class MouseStream(stub: StandardInputGrpc.StandardInputStub) : GrpcStream() {
     var lastSent: String = ""
 
     init {

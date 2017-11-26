@@ -1,8 +1,6 @@
 package lkuich.controlhubclient
 
 import android.content.pm.ActivityInfo
-import android.graphics.Rect
-import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -12,22 +10,12 @@ import android.view.WindowManager
 import android.widget.ImageView
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
-import io.grpc.stub.StreamObserver
 import service.XboxButtonsGrpc
 import service.Services
-import java.io.PrintWriter
-import java.io.StringWriter
-import java.util.concurrent.TimeUnit
-import android.opengl.ETC1.getHeight
-import android.opengl.ETC1.getWidth
-import service.XboxLeftThumbAxisGrpc
-import service.XboxRightThumbAxisGrpc
 
 
 class XboxActivity : AppCompatActivity() {
-    private var xboxButtonStream: XboxButtonStream? = null
-    private var xboxLeftAxisStream: XboxLeftAxisStream? = null
-    private var xboxRightAxisStream: XboxRightAxisStream? = null
+    private var xboxStream: XboxStream? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,16 +24,24 @@ class XboxActivity : AppCompatActivity() {
         // supportActionBar?.setDisplayHomeAsUpEnabled(true)
         fullscreen()
 
-        xboxButtonStream = XboxButtonStream(createXboxButtonsStub())
-        xboxLeftAxisStream = XboxLeftAxisStream(createXboxLeftThumbAxisStub())
-        xboxRightAxisStream = XboxRightAxisStream(createXboxRightThumbAxisStub())
+        xboxStream = XboxStream(createXboxButtonsStub())
 
         analogStick(R.id.left_analog_inner, R.id.left_analog_outer, { x, y ->
-            xboxLeftAxisStream?.leftThumbAxis(x.toShort(), y.toShort())
+            xboxStream?.leftThumbAxis(x.toShort(), y.toShort())
+        }, { // Release
+            xboxStream?.leftThumbAxis(0, 0)
+            xboxStream?.setTrigger(Trigger.LEFT, 0)
+        }, { // Pressure
+            xboxStream?.setTrigger(Trigger.LEFT, Short.MAX_VALUE.toInt())
         })
 
         analogStick(R.id.right_analog_inner, R.id.right_analog_outer, { x, y ->
-            xboxRightAxisStream?.rightThumbAxis(x.toShort(), y.toShort())
+            xboxStream?.rightThumbAxis(x.toShort(), y.toShort())
+        }, { // Release
+            xboxStream?.rightThumbAxis(0, 0)
+            xboxStream?.setTrigger(Trigger.RIGHT, 0)
+        }, { // Pressure
+            xboxStream?.setTrigger(Trigger.RIGHT, Short.MAX_VALUE.toInt())
         })
 
         button(R.id.a_button, 0x1000)
@@ -60,22 +56,6 @@ class XboxActivity : AppCompatActivity() {
 
         val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
         return XboxButtonsGrpc.newStub(channel)
-    }
-
-    fun createXboxLeftThumbAxisStub(): XboxLeftThumbAxisGrpc.XboxLeftThumbAxisStub {
-        val host: String = getString(R.string.grpc_ip)
-        val port: Int = 50051
-
-        val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
-        return XboxLeftThumbAxisGrpc.newStub(channel)
-    }
-
-    fun createXboxRightThumbAxisStub(): XboxRightThumbAxisGrpc.XboxRightThumbAxisStub {
-        val host: String = getString(R.string.grpc_ip)
-        val port: Int = 50051
-
-        val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
-        return XboxRightThumbAxisGrpc.newStub(channel)
     }
 
     fun button(id: Int, key: Int) {
@@ -95,12 +75,16 @@ class XboxActivity : AppCompatActivity() {
     }
 
     // Replace bool with function
-    fun analogStick(innerAnalogId: Int, outerAnalogId: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit) {
+    fun analogStick(innerAnalogId: Int, outerAnalogId: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, onRelease: () -> Unit, onPressure: () -> Unit) {
         val analog = findViewById<ImageView>(innerAnalogId)
         val analogOuter = findViewById<ImageView>(outerAnalogId)
 
         var analogStartCoords: FloatArray? = null
         var startCoords: FloatArray? = null
+
+        var startTime: Long = 0
+        var endTime: Long = 0
+        var trigger = true
 
         analog.setOnTouchListener(
                 View.OnTouchListener { v, evt ->
@@ -108,10 +92,21 @@ class XboxActivity : AppCompatActivity() {
                 MotionEvent.ACTION_DOWN -> {
                     analogStartCoords = floatArrayOf(analog.x, analog.y)
                     startCoords = floatArrayOf(evt.rawX, evt.rawY)
+
+                    startTime = System.nanoTime()
+                    trigger = true
                 }
                 MotionEvent.ACTION_MOVE -> {
+                    if (evt.pressure > 1.3)
+                        onPressure()
+
                     val evtX = evt.rawX
                     val evtY = evt.rawY
+
+                    /*
+                    if (evtX > 0 || evtY > 0)
+                        trigger = false
+                    */
 
                     analog.x = evtX - analog.width / 2
                     analog.y = evtY - analog.height / 2
@@ -125,7 +120,15 @@ class XboxActivity : AppCompatActivity() {
                     analog.x = analogStartCoords!![0]
                     analog.y = analogStartCoords!![1]
 
-                    onMove(0f, 0f)
+                    /*
+                    endTime = System.nanoTime()
+                    val durationMs = (endTime - startTime) / 1000000
+                    Log.v("TIME", durationMs.toString())
+                    if (durationMs <= 100)
+                        onPressure()
+                    */
+
+                    onRelease()
                 }
             }
             return@OnTouchListener true
@@ -147,20 +150,31 @@ class XboxActivity : AppCompatActivity() {
     }
 
     fun pressButton(buttonCode: Int) {
-        xboxButtonStream?.pressButton(buttonCode)
+        xboxStream?.pressButton(buttonCode)
     }
 
     fun depressButton(buttonCode: Int) {
-        xboxButtonStream?.depressButton(buttonCode)
+        xboxStream?.depressButton(buttonCode)
     }
 }
 
-private class XboxButtonStream(stub: XboxButtonsGrpc.XboxButtonsStub) : GrpcStream() {
+private enum class Trigger {
+    LEFT,
+    RIGHT
+}
+
+private class XboxStream(stub: XboxButtonsGrpc.XboxButtonsStub) : GrpcStream() {
     var lastSent: Int = 0
 
     init {
         xboxPressButtonRequestObserver = stub.pressXboxButton(responseObserver)
         xboxDepressButtonRequestObserver = stub.depressXboxButton(responseObserver)
+
+        xboxLeftThumbAxisRequestObserver = stub.xboxLeftThumbAxis(responseObserver)
+        xboxRightThumbAxisRequestObserver = stub.xboxRightThumbAxis(responseObserver)
+
+        xboxLeftTriggerRequestObserver = stub.xboxLeftTrigger(responseObserver)
+        xboxRightTriggerRequestObserver = stub.xboxRightTrigger(responseObserver)
     }
 
     fun pressButton(buttonCode: Int) {
@@ -199,24 +213,6 @@ private class XboxButtonStream(stub: XboxButtonsGrpc.XboxButtonsStub) : GrpcStre
         lastSent = buttonCode
     }
 
-    override fun onResponseNext(response: Services.Response) {
-        // Response
-    }
-
-    override fun onResponseError(t: Throwable) {
-        // Error
-    }
-
-    override fun onResponseCompleted() {
-        // Complete
-    }
-}
-
-private class XboxRightAxisStream(stub: XboxRightThumbAxisGrpc.XboxRightThumbAxisStub) : GrpcStream() {
-    init {
-        xboxRightThumbAxisRequestObserver = stub.xboxRightThumbAxis(responseObserver)
-    }
-
     fun rightThumbAxis(x: Short, y: Short) {
         try {
             val request = Services.XboxThumbAxis.newBuilder().setX(x.toInt()).setY(y.toInt()).build()
@@ -233,24 +229,6 @@ private class XboxRightAxisStream(stub: XboxRightThumbAxisGrpc.XboxRightThumbAxi
         }
     }
 
-    override fun onResponseNext(response: Services.Response) {
-        // Response
-    }
-
-    override fun onResponseError(t: Throwable) {
-        // Error
-    }
-
-    override fun onResponseCompleted() {
-        // Complete
-    }
-}
-
-private class XboxLeftAxisStream(stub: XboxLeftThumbAxisGrpc.XboxLeftThumbAxisStub) : GrpcStream() {
-    init {
-        xboxLeftThumbAxisRequestObserver = stub.xboxLeftThumbAxis(responseObserver)
-    }
-
     fun leftThumbAxis(x: Short, y: Short) {
         try {
             val request = Services.XboxThumbAxis.newBuilder().setX(x.toInt()).setY(y.toInt()).build()
@@ -261,6 +239,24 @@ private class XboxLeftAxisStream(stub: XboxLeftThumbAxisGrpc.XboxLeftThumbAxisSt
             throw e
         }
         // requestObserver?.onCompleted()
+
+        if (failed != null) {
+            throw RuntimeException(failed)
+        }
+    }
+
+    fun setTrigger(trigger: Trigger, pressure: Int) {
+        try {
+            val request = Services.XboxTrigger.newBuilder().setPressure(pressure).build()
+            if (trigger == Trigger.LEFT)
+                xboxLeftTriggerRequestObserver?.onNext(request)
+            else
+                xboxRightTriggerRequestObserver?.onNext(request)
+        } catch (e: RuntimeException) {
+            // Cancel RPC
+            responseObserver?.onError(e)
+            throw e
+        }
 
         if (failed != null) {
             throw RuntimeException(failed)

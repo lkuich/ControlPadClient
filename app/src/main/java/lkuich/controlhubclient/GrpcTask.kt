@@ -21,6 +21,9 @@ abstract class GrpcStream {
     protected var xboxDepressButtonRequestObserver: StreamObserver<Services.XboxButton>? = null
     protected var xboxLeftThumbAxisRequestObserver: StreamObserver<Services.XboxThumbAxis>? = null
     protected var xboxRightThumbAxisRequestObserver: StreamObserver<Services.XboxThumbAxis>? = null
+    protected var xboxLeftTriggerRequestObserver: StreamObserver<Services.XboxTrigger>? = null
+    protected var xboxRightTriggerRequestObserver: StreamObserver<Services.XboxTrigger>? = null
+
     protected var mouseRequestObserver: StreamObserver<Services.MouseCoords>? = null
     protected var keyboardRequestObserver: StreamObserver<Services.Key>? = null
 
