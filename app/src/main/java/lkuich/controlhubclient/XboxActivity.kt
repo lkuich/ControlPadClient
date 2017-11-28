@@ -12,35 +12,58 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import service.XboxButtonsGrpc
 import service.Services
-
+import android.support.v4.view.MotionEventCompat
 
 class XboxActivity : AppCompatActivity() {
     private var xboxStream: XboxStream? = null
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        val action = MotionEventCompat.getActionMasked(event)
+        when (action) {
+            MotionEvent.ACTION_DOWN -> {
+            }
+            MotionEvent.ACTION_MOVE -> {
+            }
+            MotionEvent.ACTION_UP -> {
+                // fullscreen()
+            }
+            MotionEvent.ACTION_CANCEL -> {
+            }
+            MotionEvent.ACTION_OUTSIDE -> {
+            }
+        }
+
+        return super.onTouchEvent(event)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val IP = intent.getStringExtra(HomeActivity.IP)
+
         setContentView(R.layout.activity_canvas)
-        // supportActionBar?.setDisplayHomeAsUpEnabled(true)
         fullscreen()
 
-        xboxStream = XboxStream(createXboxButtonsStub())
-
+        xboxStream = XboxStream(createStub(IP))
         analogStick(R.id.left_analog_inner, R.id.left_analog_outer, { x, y ->
             xboxStream?.leftThumbAxis(x.toShort(), y.toShort())
-        }, { // Release
+        }, {
+            // Release
             xboxStream?.leftThumbAxis(0, 0)
             xboxStream?.setTrigger(Trigger.LEFT, 0)
-        }, { // Pressure
+        }, {
+            // Pressure
             xboxStream?.setTrigger(Trigger.LEFT, Short.MAX_VALUE.toInt())
         })
 
         analogStick(R.id.right_analog_inner, R.id.right_analog_outer, { x, y ->
             xboxStream?.rightThumbAxis(x.toShort(), y.toShort())
-        }, { // Release
+        }, {
+            // Release
             xboxStream?.rightThumbAxis(0, 0)
             xboxStream?.setTrigger(Trigger.RIGHT, 0)
-        }, { // Pressure
+        }, {
+            // Pressure
             xboxStream?.setTrigger(Trigger.RIGHT, Short.MAX_VALUE.toInt())
         })
 
@@ -50,8 +73,8 @@ class XboxActivity : AppCompatActivity() {
         button(R.id.y_button, 0x8000)
     }
 
-    fun createXboxButtonsStub(): XboxButtonsGrpc.XboxButtonsStub {
-        val host: String = getString(R.string.grpc_ip)
+    fun createStub(ip: String): XboxButtonsGrpc.XboxButtonsStub {
+        val host: String = ip
         val port: Int = 50051
 
         val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()

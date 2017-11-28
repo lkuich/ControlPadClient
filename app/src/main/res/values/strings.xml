@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">ControlHubClient</string>
     <string name="grpc_ip">192.168.1.118</string>
+    <string name="xbox_desc">
+        Your system will recognize this layout as an actual Xbox 360 controller.
+        This is the best configuration to use if your game supports it.
+    </string>
+    <string name="standard_desc">
+        Your system will treat this layout as standard keyboard and mouse input.
+    </string>
 </resources>
