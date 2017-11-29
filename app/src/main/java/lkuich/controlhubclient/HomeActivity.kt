@@ -6,40 +6,39 @@ import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.view.View
 import android.support.v4.view.ViewPager
-import android.support.v4.app.FragmentPagerAdapter
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.view.PagerAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import android.R.menu
-import android.view.Menu
-
-import android.content.ContentValues.TAG
-import android.support.v4.content.LocalBroadcastManager
 import android.content.Intent
-import android.provider.SyncStateContract
-import android.system.Os.socket
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import android.content.ContentValues.TAG
-import android.content.Context
 import android.os.StrictMode
-import android.net.DhcpInfo
-import android.content.Context.WIFI_SERVICE
-import android.net.wifi.WifiManager
 import android.os.AsyncTask
+import android.support.annotation.NonNull
 import android.widget.Button
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.*
 
 
-class BroadcastReceiver: AsyncTask<Void, Void, String>() {
+class BroadcastReceiver(val postExecute: (result: String) -> Unit): AsyncTask<Void, Void, String>() {
     val PORT = 58384
 
     override fun doInBackground(vararg params: Void?): String {
         return startReceiving()
+    }
+
+    override fun onPostExecute(result: String?) {
+        super.onPostExecute(result)
+        postExecute(result!!)
     }
 
     fun sendBroadcast(ip: String, messageStr: String) {
@@ -80,21 +79,8 @@ class BroadcastReceiver: AsyncTask<Void, Void, String>() {
 }
 
 class HomeActivity : FragmentActivity() {
-
-    /**
-     * The number of pages (wizard steps) to show in this demo.
-     */
     private val NUM_PAGES = 2
-
-    /**
-     * The pager widget, which handles animation and allows swiping horizontally to access previous
-     * and next wizard steps.
-     */
     private var mPager: ViewPager? = null
-
-    /**
-     * The pager adapter, which provides the pages to the view pager widget.
-     */
     private var mPagerAdapter: PagerAdapter? = null
 
     companion object {
@@ -119,21 +105,25 @@ class HomeActivity : FragmentActivity() {
             }
         })
 
-        // Start broadcasting
-        Thread().run {
-            val ip = BroadcastReceiver().execute().get()
+        // Customize layout button
+        findViewById<Button>(R.id.btnConfigure).setOnClickListener({
+            val intent = Intent(applicationContext, CustomizeLayoutActivity::class.java)
+            startActivity(intent)
+        })
 
+        // Start broadcasting
+        BroadcastReceiver({ result ->
             // Now we can activate the button
             runOnUiThread {
                 val btn = findViewById<Button>(R.id.btnConnect)
                 btn.isEnabled = true
                 btn.setOnClickListener({
                     val intent = Intent(applicationContext, XboxActivity::class.java)
-                    intent.putExtra(IP, ip)
+                    intent.putExtra(IP, result)
                     startActivity(intent)
                 })
             }
-        }
+        }).execute()
     }
 
     override fun onBackPressed() {
@@ -167,13 +157,6 @@ class HomeActivity : FragmentActivity() {
 
 
 class ScreenSlidePageFragment : Fragment() {
-
-    /**
-     * The fragment's page number, which is set to the argument value for [.ARG_PAGE].
-     */
-    /**
-     * Returns the page number represented by this fragment object.
-     */
     var pageNumber: Int = 0
         private set
 

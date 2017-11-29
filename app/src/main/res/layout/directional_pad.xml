@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dpad"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/left_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/up_button"
+        android:rotation="-90"
+        android:src="@drawable/directional_up" />
+
+    <ImageView
+        android:id="@+id/down_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/left_button"
+        android:layout_toEndOf="@+id/left_button"
+        android:rotation="180"
+        android:src="@drawable/directional_up" />
+
+    <ImageView
+        android:id="@+id/up_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/left_button"
+        android:src="@drawable/directional_up" />
+
+    <ImageView
+        android:id="@+id/right_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/up_button"
+        android:layout_toEndOf="@+id/down_button"
+        android:rotation="90"
+        android:src="@drawable/directional_up" />
+
+</RelativeLayout>

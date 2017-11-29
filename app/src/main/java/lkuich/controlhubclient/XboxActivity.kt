@@ -36,13 +36,19 @@ class XboxActivity : AppCompatActivity() {
         return super.onTouchEvent(event)
     }
 
+    private var app : ControlHubApplication? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val IP = intent.getStringExtra(HomeActivity.IP)
-
         setContentView(R.layout.activity_canvas)
         fullscreen()
+
+        app = applicationContext as ControlHubApplication
+        app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == "custom" }.controls.forEach { control ->
+            control.move(findViewById(control.elm.id))
+        }
 
         xboxStream = XboxStream(createStub(IP))
         analogStick(R.id.left_analog_inner, R.id.left_analog_outer, { x, y ->

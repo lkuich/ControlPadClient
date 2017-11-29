@@ -17,6 +17,15 @@ service XboxButtons {
   rpc XboxRightThumbAxis (stream XboxThumbAxis) returns(stream Response) {}
 }
 
+service ConnectionHelpers {
+  rpc VerifyXboxConnection (XboxButton) returns (Response) {}
+  rpc VerifyStandardConnection (Response) returns (Response) {}
+}
+
+message BroadcastAddress {
+  string ip = 1;
+}
+
 message XboxTrigger {
 	int32 pressure = 1;
 }

@@ -8,4 +8,6 @@
     <string name="standard_desc">
         Your system will treat this layout as standard keyboard and mouse input.
     </string>
+    <string name="title_activity_customize_layout">Customize Layout</string>
+    <string name="web_client_id">1094341903373-cg761q6q7bngjvlc8221d84mie0mro2c.apps.googleusercontent.com</string>
 </resources>

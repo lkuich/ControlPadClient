@@ -49,9 +49,11 @@
         android:orientation="vertical" >
 
         <Button
+            android:id="@+id/btnConfigure"
             android:layout_gravity="center_horizontal|center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="18sp"
             android:layout_marginBottom="18sp"
             android:layout_marginLeft="18sp"
             android:layout_marginRight="18sp"
