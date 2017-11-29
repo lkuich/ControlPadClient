@@ -16,6 +16,7 @@ import android.widget.Toast
 import android.widget.TextView
 import android.widget.RelativeLayout
 import android.app.Activity
+import android.support.v4.view.MotionEventCompat
 import java.util.*
 
 
@@ -49,8 +50,8 @@ class ElementPosition(val elm: RelativeLayout, private val actionUp: (elm: View,
     }
 
     fun setPos(x: Float, y: Float) {
-        this.x = x - elm.width / 2
-        this.y = y - elm.height / 2
+        this.x = x// - elm.width / 2
+        this.y = y// - elm.height / 2
     }
 
     fun move(elms: RelativeLayout) {
@@ -75,6 +76,26 @@ class CustomizeLayoutActivity : AppCompatActivity() {
 
     }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        val action = MotionEventCompat.getActionMasked(event)
+        when (action) {
+            MotionEvent.ACTION_DOWN -> {
+            }
+            MotionEvent.ACTION_MOVE -> {
+                fullscreen()
+            }
+            MotionEvent.ACTION_UP -> {
+            }
+            MotionEvent.ACTION_CANCEL -> {
+            }
+            MotionEvent.ACTION_OUTSIDE -> {
+            }
+        }
+
+        return super.onTouchEvent(event)
+    }
+
+    private val layouts = arrayOf("Default", "Custom 1", "Custom 2")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_canvas)
@@ -82,12 +103,16 @@ class CustomizeLayoutActivity : AppCompatActivity() {
         app = applicationContext as ControlHubApplication
         val selectedLayout = app!!.getInstance()!!.selectedLayout
         if (app!!.getInstance()!!.layouts.isEmpty()) {
-            app!!.getInstance()!!.layouts.add(ControlLayout(selectedLayout, mutableListOf<ElementPosition>(
-                    ElementPosition(findViewById(R.id.left_directional_pad), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
-                    ElementPosition(findViewById(R.id.right_directional_pad), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
-                    ElementPosition(findViewById(R.id.buttons), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
-                    ElementPosition(findViewById(R.id.dpad), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) })
-            )))
+            layouts.forEach { layout ->
+                app!!.getInstance()!!.layouts.add(ControlLayout(layout, mutableListOf<ElementPosition>(
+                        ElementPosition(findViewById(R.id.left_directional_pad), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
+                        ElementPosition(findViewById(R.id.right_directional_pad), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
+                        ElementPosition(findViewById(R.id.buttons), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
+                        ElementPosition(findViewById(R.id.dpad), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
+                        ElementPosition(findViewById(R.id.left_shoulder), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
+                        ElementPosition(findViewById(R.id.right_shoulder), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) })
+                )))
+            }
         } else {
             // Set controls
             app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == selectedLayout }.controls.forEach { control ->
@@ -121,23 +146,23 @@ class CustomizeLayoutActivity : AppCompatActivity() {
     fun layoutSelection() {
         // Build an AlertDialog
         val builder = AlertDialog.Builder(this@CustomizeLayoutActivity)
-
-        // String array for alert dialog multi choice items
-        val colors = arrayOf("Default")
-
-        // Convert the color array to list
-        val colorsList = Arrays.asList(colors)
-
-        builder.setSingleChoiceItems(colors, 0) { dialog, index ->
-            val currentItem = colorsList[index-1]
-            Toast.makeText(applicationContext,
-                    currentItem.toString(), Toast.LENGTH_LONG).show()
+        var currentItem = layouts[0]
+        builder.setSingleChoiceItems(layouts, layouts.indexOf(app!!.getInstance()?.selectedLayout)) { dialog, index ->
+            currentItem = layouts[index]
         }
 
         builder.setCancelable(true)
         builder.setTitle("Select layout")
-        builder.setPositiveButton("OK") { dialog, which ->
+        builder.setPositiveButton("OK") { dialog, index ->
+            app!!.getInstance()!!.selectedLayout = currentItem
+            app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == app!!.getInstance()!!.selectedLayout }.controls.forEach { control ->
+                val view = findViewById<RelativeLayout>(control.elm.id)
+                control.enableMovement(view)
+                control.move(view)
+            }
 
+            mDrawerLayout?.closeDrawers()
+            fullscreen()
         }
         builder.setNeutralButton("Cancel") { dialog, which ->
 

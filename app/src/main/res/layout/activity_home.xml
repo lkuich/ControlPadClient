@@ -36,8 +36,6 @@
         android:layout_width="match_parent"
         android:layout_height="242dp"
         android:layout_marginBottom="24sp"
-        android:layout_marginLeft="18sp"
-        android:layout_marginRight="18sp"
         android:layout_marginTop="24sp" />
 
 
@@ -47,20 +45,6 @@
         android:layout_weight="1"
         android:gravity="center|bottom"
         android:orientation="vertical" >
-
-        <Button
-            android:id="@+id/btnLayout"
-            android:layout_gravity="center_horizontal|center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18sp"
-            android:layout_marginBottom="18sp"
-            android:layout_marginLeft="18sp"
-            android:layout_marginRight="18sp"
-            android:background="#3b3b3b"
-            android:fontFamily="@font/seguisb"
-            android:text="Layout (Default)"
-            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/btnConfigure"

@@ -25,7 +25,6 @@ class XboxActivity : AppCompatActivity() {
             MotionEvent.ACTION_MOVE -> {
             }
             MotionEvent.ACTION_UP -> {
-                // fullscreen()
             }
             MotionEvent.ACTION_CANCEL -> {
             }
@@ -46,7 +45,7 @@ class XboxActivity : AppCompatActivity() {
         fullscreen()
 
         app = applicationContext as ControlHubApplication
-        app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == "custom" }.controls.forEach { control ->
+        app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == app!!.getInstance()?.selectedLayout }.controls.forEach { control ->
             control.move(findViewById(control.elm.id))
         }
 
@@ -77,6 +76,9 @@ class XboxActivity : AppCompatActivity() {
         button(R.id.b_button, 0x2000)
         button(R.id.x_button, 0x4000)
         button(R.id.y_button, 0x8000)
+
+        trigger(R.id.lt, Trigger.LEFT)
+        trigger(R.id.rt, Trigger.RIGHT)
     }
 
     fun createStub(ip: String): XboxButtonsGrpc.XboxButtonsStub {
@@ -85,6 +87,22 @@ class XboxActivity : AppCompatActivity() {
 
         val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
         return XboxButtonsGrpc.newStub(channel)
+    }
+
+    fun trigger(id: Int, side: Trigger) {
+        val trigger = findViewById<ImageView>(id)
+        trigger.setOnTouchListener(
+                View.OnTouchListener { v, evt ->
+                    when (evt.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            xboxStream?.setTrigger(side, Short.MAX_VALUE.toInt())
+                        }
+                        MotionEvent.ACTION_UP -> {
+                            xboxStream?.setTrigger(side, Short.MIN_VALUE.toInt())
+                        }
+                    }
+                    return@OnTouchListener true
+                })
     }
 
     fun button(id: Int, key: Int) {
@@ -187,7 +205,7 @@ class XboxActivity : AppCompatActivity() {
     }
 }
 
-private enum class Trigger {
+enum class Trigger {
     LEFT,
     RIGHT
 }
