@@ -7,6 +7,7 @@ class ControlHubApplication : Application() {
     private var singleton: ControlHubApplication? = null
 
     var layouts = mutableListOf<ControlLayout>()
+    var selectedLayout: String = "Default"
 
     fun getInstance(): ControlHubApplication? {
         return singleton
