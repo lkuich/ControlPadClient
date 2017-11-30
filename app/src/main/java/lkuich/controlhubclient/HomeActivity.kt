@@ -21,6 +21,7 @@ import android.os.StrictMode
 import android.os.AsyncTask
 import android.support.annotation.NonNull
 import android.widget.Button
+import android.widget.ProgressBar
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -82,6 +83,7 @@ class HomeActivity : FragmentActivity() {
     private val NUM_PAGES = 2
     private var mPager: ViewPager? = null
     private var mPagerAdapter: PagerAdapter? = null
+    private var selectedConfig = 0
 
     companion object {
         val IP = "com.lkuich.controlhubclient.IP"
@@ -102,6 +104,7 @@ class HomeActivity : FragmentActivity() {
                 // fragment expose actions itself (rather than the activity exposing actions),
                 // but for simplicity, the activity provides the actions in this sample.
                 invalidateOptionsMenu()
+                selectedConfig = position
             }
         })
 
@@ -118,10 +121,14 @@ class HomeActivity : FragmentActivity() {
                 val btn = findViewById<Button>(R.id.btnConnect)
                 btn.isEnabled = true
                 btn.setOnClickListener({
-                    val intent = Intent(applicationContext, XboxActivity::class.java)
+                    val activity = if (selectedConfig == 0) CanvasActivity::class.java else XboxActivity::class.java
+                    val intent = Intent(applicationContext, activity)
                     intent.putExtra(IP, result)
                     startActivity(intent)
                 })
+
+                (findViewById<ProgressBar>(R.id.progressBar)).visibility = 1
+                (findViewById<TextView>(R.id.txtServerStatus)).text = "Found server (" + result + ")"
             }
         }).execute()
     }
@@ -151,8 +158,6 @@ class HomeActivity : FragmentActivity() {
             return NUM_PAGES
         }
     }
-
-
 }
 
 

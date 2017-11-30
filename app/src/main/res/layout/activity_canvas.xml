@@ -205,4 +205,16 @@
             android:src="@drawable/shoulder" />
     </RelativeLayout>
 
+    <ImageView
+        android:id="@+id/start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/trigger" />
+
+    <ImageView
+        android:id="@+id/select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/trigger" />
+
 </RelativeLayout>

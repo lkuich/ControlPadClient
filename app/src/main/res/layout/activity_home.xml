@@ -17,19 +17,21 @@
         android:text="Control Hub" />
 
     <TextView
+        android:id="@+id/txtServerStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2sp"
         android:fontFamily="@font/segoeuil"
+        android:text="Looking for a server..."
         android:textAlignment="center"
-        android:textSize="16sp"
         android:textColor="@color/white"
-        android:text="Looking for a server..." />
+        android:textSize="16sp" />
 
     <ProgressBar
+        android:id="@+id/progressSpinner"
         style="?android:attr/progressBarStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/inputType"

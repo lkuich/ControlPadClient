@@ -76,9 +76,16 @@ class XboxActivity : AppCompatActivity() {
         button(R.id.b_button, 0x2000)
         button(R.id.x_button, 0x4000)
         button(R.id.y_button, 0x8000)
+        button(R.id.lb, 0x0100)
+        button(R.id.rb, 0x0200)
+        button(R.id.start, 0x0010)
+        button(R.id.select, 0x0020)
 
         trigger(R.id.lt, Trigger.LEFT)
         trigger(R.id.rt, Trigger.RIGHT)
+
+        // Send start config to server
+        xboxStream?.pressButton(0x9001)
     }
 
     fun createStub(ip: String): XboxButtonsGrpc.XboxButtonsStub {
