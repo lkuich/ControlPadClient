@@ -20,6 +20,7 @@ class LoginActivity : Activity() {
     private val RC_SIGN_IN = 9001
     private var app : ControlHubApplication? = null
     private var mAuth: FirebaseAuth? = null
+    private var signinButton: SignInButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +29,9 @@ class LoginActivity : Activity() {
         app = applicationContext as ControlHubApplication
         mAuth = FirebaseAuth.getInstance()
 
-        findViewById<SignInButton>(R.id.sign_in_button).setOnClickListener({
+        signinButton = findViewById(R.id.sign_in_button)
+        signinButton?.isEnabled = false
+        signinButton?.setOnClickListener({
             googleSignin()
         })
     }
@@ -38,6 +41,8 @@ class LoginActivity : Activity() {
         val currentUser: FirebaseUser? = mAuth?.currentUser
         if (currentUser != null)
             showHome(currentUser)
+        else
+            signinButton?.isEnabled = true
     }
 
     fun googleSignin() {
