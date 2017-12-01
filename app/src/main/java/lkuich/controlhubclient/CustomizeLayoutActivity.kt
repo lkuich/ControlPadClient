@@ -17,10 +17,6 @@ import android.widget.TextView
 import android.widget.RelativeLayout
 import android.app.Activity
 import android.support.v4.view.MotionEventCompat
-import java.util.*
-
-
-class ControlLayout(val name: String, val controls: MutableList<ElementPosition>)
 
 class ElementPosition(val elm: RelativeLayout, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit) {
     var x: Float = elm.x
@@ -50,8 +46,8 @@ class ElementPosition(val elm: RelativeLayout, private val actionUp: (elm: View,
     }
 
     fun setPos(x: Float, y: Float) {
-        this.x = x// - elm.width / 2
-        this.y = y// - elm.height / 2
+        this.x = x - elm.width / 2
+        this.y = y - elm.height / 2
     }
 
     fun move(elms: RelativeLayout) {
@@ -60,62 +56,88 @@ class ElementPosition(val elm: RelativeLayout, private val actionUp: (elm: View,
     }
 }
 
-class CustomizeLayoutActivity : AppCompatActivity() {
+abstract class BaseCanvasActivity: AppCompatActivity() {
+    var app: ControlHubApplication? = null
 
-    private var mDrawerLayout: DrawerLayout? = null
-    private var mDrawerList: ListView? = null
+    abstract fun onCreate()
 
-    private var app : ControlHubApplication? = null
-
-    fun onElmUp(elm: View, rawX: Float, rawY: Float) {
-        // Save layout
-        val selectedLayout = app!!.getInstance()!!.selectedLayout
-        app!!.getInstance()!!.layouts
-                .first { e -> e.name == selectedLayout }
-                .controls.first { control -> control.elm.id == elm.id }.setPos(rawX , rawY)
-
-    }
-
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        val action = MotionEventCompat.getActionMasked(event)
-        when (action) {
-            MotionEvent.ACTION_DOWN -> {
-            }
-            MotionEvent.ACTION_MOVE -> {
-                fullscreen()
-            }
-            MotionEvent.ACTION_UP -> {
-            }
-            MotionEvent.ACTION_CANCEL -> {
-            }
-            MotionEvent.ACTION_OUTSIDE -> {
-            }
-        }
-
-        return super.onTouchEvent(event)
-    }
-
-    private val layouts = arrayOf("Default", "Custom 1", "Custom 2")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_canvas)
+        fullscreen()
 
         app = applicationContext as ControlHubApplication
-        val selectedLayout = app!!.getInstance()!!.selectedLayout
-        if (app!!.getInstance()!!.layouts.isEmpty()) {
-            layouts.forEach { layout ->
-                app!!.getInstance()!!.layouts.add(ControlLayout(layout, mutableListOf<ElementPosition>(
-                        ElementPosition(findViewById(R.id.left_directional_pad), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
-                        ElementPosition(findViewById(R.id.right_directional_pad), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
-                        ElementPosition(findViewById(R.id.buttons), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
-                        ElementPosition(findViewById(R.id.dpad), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
-                        ElementPosition(findViewById(R.id.left_shoulder), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }),
-                        ElementPosition(findViewById(R.id.right_shoulder), { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) })
-                )))
+
+        if (app?.getInstance()!!.layouts.isEmpty()) {
+            // Load the cached layouts
+            app?.getInstance()!!.layouts.clear()
+            app?.getInstance()!!.cachedLayouts.forEach {
+                // Iterate through cached layout
+                val elements = mutableListOf<ElementPosition>()
+                it.controls.forEach { control ->
+                    // Go through each control
+                    val element = findViewById<RelativeLayout>(control.id.toInt()) // get elm
+                    val ctrl = ElementPosition(element, { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) })
+                    ctrl.setPos(control.x.toFloat(), control.y.toFloat())
+                    ctrl.move(element)
+
+                    elements.add(ctrl)
+                }
+                app?.getInstance()!!.layouts.add(ControlLayout(it.name, elements))
             }
-        } else {
-            // Set controls
-            app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == selectedLayout }.controls.forEach { control ->
+        }
+
+        onCreate()
+    }
+
+    fun onElmUp(elm: View, rawX: Float, rawY: Float) {
+        // Save layout
+        val selectedLayout = app?.getInstance()?.selectedLayout
+        app?.getInstance()?.layouts!!
+                .first { e -> e.name == selectedLayout }
+                .controls.first { control -> control.elm.id == elm.id }.setPos(rawX , rawY)
+
+        // Save it to DB
+        app?.getInstance()?.firebaseLayouts!!.children.forEach { layout ->
+            val name = layout.child("name").value.toString()
+            val correctLayout = name == app?.getInstance()?.selectedLayout
+            if (correctLayout) {
+                layout.child("controls").children.forEach { config ->
+                    if (config.child("id").value.toString().toInt() == elm.id) {
+                        val controls = app?.getInstance()?.database?.child("layouts")?.child(layout.key)?.child("controls")?.child(config.key)!!
+                        controls.child("x")?.setValue(rawX.toString())
+                        controls.child("y")?.setValue(rawY.toString())
+                    }
+                }
+            }
+        }
+    }
+
+    fun fullscreen() {
+        // Don't dim display
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        // Set landscape
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_IMMERSIVE)
+    }
+}
+
+class CustomizeLayoutActivity : BaseCanvasActivity() {
+
+    private var layouts: Array<String> = arrayOf()
+    override fun onCreate() {
+        layouts = app!!.getInstance()!!.layoutNames
+        val selectedLayout = app!!.getInstance()!!.selectedLayout
+
+        // Set controls
+        if (!app?.getInstance()!!.layouts.isEmpty()) {
+            app?.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == selectedLayout }.controls.forEach { control ->
                 val view = findViewById<RelativeLayout>(control.elm.id)
                 control.enableMovement(view)
                 control.move(view)
@@ -139,8 +161,28 @@ class CustomizeLayoutActivity : AppCompatActivity() {
                 }
             }
         })
+    }
 
-        fullscreen()
+    private var mDrawerLayout: DrawerLayout? = null
+    private var mDrawerList: ListView? = null
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        val action = MotionEventCompat.getActionMasked(event)
+        when (action) {
+            MotionEvent.ACTION_DOWN -> {
+            }
+            MotionEvent.ACTION_MOVE -> {
+                fullscreen()
+            }
+            MotionEvent.ACTION_UP -> {
+            }
+            MotionEvent.ACTION_CANCEL -> {
+            }
+            MotionEvent.ACTION_OUTSIDE -> {
+            }
+        }
+
+        return super.onTouchEvent(event)
     }
 
     fun layoutSelection() {
@@ -170,19 +212,5 @@ class CustomizeLayoutActivity : AppCompatActivity() {
 
         // Build and show
         builder.create().show()
-    }
-
-    fun fullscreen() {
-        // Don't dim display
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-        // Set landscape
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_IMMERSIVE)
     }
 }

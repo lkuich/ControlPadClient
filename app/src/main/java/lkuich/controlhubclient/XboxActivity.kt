@@ -14,7 +14,7 @@ import service.XboxButtonsGrpc
 import service.Services
 import android.support.v4.view.MotionEventCompat
 
-class XboxActivity : AppCompatActivity() {
+class XboxActivity : BaseCanvasActivity() {
     private var xboxStream: XboxStream? = null
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -35,20 +35,12 @@ class XboxActivity : AppCompatActivity() {
         return super.onTouchEvent(event)
     }
 
-    private var app : ControlHubApplication? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        val IP = intent.getStringExtra(HomeActivity.IP)
-        setContentView(R.layout.activity_canvas)
-        fullscreen()
-
-        app = applicationContext as ControlHubApplication
-        app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == app!!.getInstance()?.selectedLayout }.controls.forEach { control ->
+    override fun onCreate() {
+        app?.getInstance()?.layouts?.first { controlLayout -> controlLayout.name == app!!.getInstance()?.selectedLayout }?.controls?.forEach { control ->
             control.move(findViewById(control.elm.id))
         }
 
+        val IP = intent.getStringExtra(HomeActivity.IP)
         xboxStream = XboxStream(createStub(IP))
         analogStick(R.id.left_analog_inner, R.id.left_analog_outer, { x, y ->
             xboxStream?.leftThumbAxis(x.toShort(), y.toShort())
@@ -78,8 +70,10 @@ class XboxActivity : AppCompatActivity() {
         button(R.id.y_button, 0x8000)
         button(R.id.lb, 0x0100)
         button(R.id.rb, 0x0200)
+        /*
         button(R.id.start, 0x0010)
         button(R.id.select, 0x0020)
+        */
 
         trigger(R.id.lt, Trigger.LEFT)
         trigger(R.id.rt, Trigger.RIGHT)
@@ -187,20 +181,6 @@ class XboxActivity : AppCompatActivity() {
             }
             return@OnTouchListener true
         })
-    }
-
-    fun fullscreen() {
-        // Don't dim display
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-        // Set landscape
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_IMMERSIVE)
     }
 
     fun pressButton(buttonCode: Int) {

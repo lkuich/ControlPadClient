@@ -12,6 +12,7 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import com.google.common.primitives.UnsignedInteger
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
@@ -96,16 +97,14 @@ class Axis (var x: Float, var y: Float) {
     }
 }
 
-class CanvasActivity : AppCompatActivity() {
+class CanvasActivity : BaseCanvasActivity() {
     private var mouseStream: MouseStream? = null
     private var keyboardStream: KeyboardStream? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        setContentView(R.layout.activity_canvas)
-        // supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        fullscreen()
+    override fun onCreate() {
+        app?.getInstance()?.layouts?.first { controlLayout -> controlLayout.name == app!!.getInstance()?.selectedLayout }?.controls?.forEach { control ->
+            control.move(findViewById(control.elm.id))
+        }
 
         val stub = createStub()
         mouseStream = MouseStream(stub)
@@ -191,20 +190,6 @@ class CanvasActivity : AppCompatActivity() {
             }
             return@OnTouchListener true
         })
-    }
-
-    fun fullscreen() {
-        // Don't dim display
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-        // Set landscape
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_IMMERSIVE)
     }
 
     fun sendKey(firstKey: Int, secondKey: Int = 0) {

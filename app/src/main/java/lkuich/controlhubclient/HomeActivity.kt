@@ -1,5 +1,7 @@
 package lkuich.controlhubclient
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
@@ -13,6 +15,10 @@ import android.support.v4.view.PagerAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
+import android.net.wifi.WifiManager
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -20,6 +26,7 @@ import java.net.InetAddress
 import android.os.StrictMode
 import android.os.AsyncTask
 import android.support.annotation.NonNull
+import android.util.Log
 import android.widget.Button
 import android.widget.ProgressBar
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -28,6 +35,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.*
+import com.google.firebase.database.*
 
 
 class BroadcastReceiver(val postExecute: (result: String) -> Unit): AsyncTask<Void, Void, String>() {
@@ -99,10 +107,6 @@ class HomeActivity : FragmentActivity() {
         mPager!!.adapter = mPagerAdapter
         mPager!!.setOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
-                // When changing pages, reset the action bar actions since they are dependent
-                // on which page is currently active. An alternative approach is to have each
-                // fragment expose actions itself (rather than the activity exposing actions),
-                // but for simplicity, the activity provides the actions in this sample.
                 invalidateOptionsMenu()
                 selectedConfig = position
             }
@@ -121,16 +125,36 @@ class HomeActivity : FragmentActivity() {
                 val btn = findViewById<Button>(R.id.btnConnect)
                 btn.isEnabled = true
                 btn.setOnClickListener({
-                    val activity = if (selectedConfig == 0) CanvasActivity::class.java else XboxActivity::class.java
+                    val activity = if (selectedConfig == 0) XboxActivity::class.java else CanvasActivity::class.java
                     val intent = Intent(applicationContext, activity)
                     intent.putExtra(IP, result)
                     startActivity(intent)
                 })
 
-                (findViewById<ProgressBar>(R.id.progressBar)).visibility = 1
+                (findViewById<ProgressBar>(R.id.progressSpinner)).visibility = View.INVISIBLE
                 (findViewById<TextView>(R.id.txtServerStatus)).text = "Found server (" + result + ")"
             }
         }).execute()
+    }
+
+    fun isWifiConnected(): Boolean {
+        val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val networkInfo: NetworkInfo
+        if (wifi.isWifiEnabled) {
+            val connectivityManager = applicationContext.getSystemService(
+                    Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
+        } else
+            return false
+
+        return networkInfo.isConnected
+    }
+
+    fun isUsbConnected(): Boolean {
+        val intent = applicationContext.registerReceiver(null, IntentFilter(
+                "android.hardware.usb.action.USB_STATE")
+        )
+        return intent != null && intent.extras!!.getBoolean("connected")
     }
 
     override fun onBackPressed() {
