@@ -3,10 +3,10 @@ package lkuich.controlhubclient
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.text.Layout
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.TextView
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -15,7 +15,6 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.*
 import com.google.firebase.database.*
-import java.lang.Float.parseFloat
 
 class LoginActivity : Activity() {
     private val RC_SIGN_IN = 9001
@@ -77,6 +76,10 @@ class LoginActivity : Activity() {
         app?.getInstance()!!.database = FirebaseDatabase.getInstance().reference.child(user.uid)
         app?.getInstance()!!.database?.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // Show loading
+                findViewById<TextView>(R.id.loading).visibility = View.VISIBLE
+                findViewById<SignInButton>(R.id.sign_in_button).isEnabled = false
+
                 val selectedLayout: Any? = dataSnapshot.child("selectedLayout").value
                 if (selectedLayout == null) {
                     // No layout exists, create it!
@@ -115,15 +118,15 @@ class LoginActivity : Activity() {
                     val firebaseLayout = FirebaseLayout(name, controls)
                     app?.getInstance()!!.cachedLayouts.add(firebaseLayout)
                 }
+
+                val intent = Intent(applicationContext, HomeActivity::class.java)
+                startActivity(intent)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
                 println("loadPost:onCancelled ${databaseError.toException()}")
             }
         })
-
-        val intent = Intent(applicationContext, HomeActivity::class.java)
-        startActivity(intent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {

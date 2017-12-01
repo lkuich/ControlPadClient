@@ -142,7 +142,8 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
                 control.enableMovement(view)
                 control.move(view)
             }
-        }
+        } else
+            recreate()
 
         val drawerItems = resources.getStringArray(R.array.config_options)
         mDrawerLayout = findViewById(R.id.drawer_layout)
