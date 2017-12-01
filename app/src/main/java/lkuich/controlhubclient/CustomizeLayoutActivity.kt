@@ -142,8 +142,10 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
                 control.enableMovement(view)
                 control.move(view)
             }
-        } else
-            recreate()
+        } else {
+            // TODO: No layouts were loaded, this is a problem
+            val i =0
+        }
 
         val drawerItems = resources.getStringArray(R.array.config_options)
         mDrawerLayout = findViewById(R.id.drawer_layout)

@@ -65,9 +65,6 @@ class LoginActivity : Activity() {
                     // Sign in success, update UI with the signed-in user's information
                     val user: FirebaseUser = mAuth?.currentUser!!
 
-                    val factory: LayoutInflater = layoutInflater
-                    factory.inflate(R.layout.activity_canvas, null)
-
                     // Load persisted values, boot up the layout manager if there are none saved
                     showHome(user)
                 } else {
