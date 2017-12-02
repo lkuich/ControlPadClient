@@ -1,10 +1,7 @@
 package lkuich.controlhubclient
 
-import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -12,42 +9,57 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
-import android.widget.Toast
-import android.widget.TextView
 import android.widget.RelativeLayout
-import android.app.Activity
+import android.content.Context
+import android.os.Vibrator
 import android.support.v4.view.MotionEventCompat
+import android.view.LayoutInflater
+
+
 
 class ElementPosition(val elm: RelativeLayout, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit) {
     var x: Float = elm.x
     var y: Float = elm.y
-
-    init {
-        enableMovement()
-    }
+    private val vibrator: Vibrator = (elm.context.getSystemService(Context.VIBRATOR_SERVICE)) as Vibrator
+    lateinit var onTap: () -> Unit
 
     fun enableMovement(elms: RelativeLayout? = null) {
-        val target = if (elms == null) elm else elms
-        target.setOnTouchListener(
-                View.OnTouchListener { v, evt ->
-                    when (evt.action) {
-                        MotionEvent.ACTION_DOWN -> {
+        val target = elms ?: elm
+        target.setOnClickListener({
+            onTap()
+        })
+        target.setOnLongClickListener(View.OnLongClickListener { lng ->
+            vibrator.vibrate(500)
+            target.setOnTouchListener(
+                    View.OnTouchListener { v, evt ->
+                        when (evt.action) {
+                            MotionEvent.ACTION_DOWN -> {
+                            }
+                            MotionEvent.ACTION_MOVE -> {
+                                target.x = evt.rawX - target.width / 2
+                                target.y = evt.rawY - target.height / 2
+                            }
+                            MotionEvent.ACTION_UP -> {
+                                actionUp(target, target.x, target.y)
+                                target.setOnTouchListener(null)
+                            }
                         }
-                        MotionEvent.ACTION_MOVE -> {
-                            target.x = evt.rawX - target.width / 2
-                            target.y = evt.rawY - target.height / 2
-                        }
-                        MotionEvent.ACTION_UP -> {
-                            actionUp(target, evt.rawX, evt.rawY)
-                        }
-                    }
-                    return@OnTouchListener true
-                })
+                        return@OnTouchListener true
+                    })
+
+            return@OnLongClickListener true
+        })
+
     }
 
     fun setPos(x: Float, y: Float) {
         this.x = x - elm.width / 2
         this.y = y - elm.height / 2
+    }
+
+    fun moveNoWidth(elms: RelativeLayout) {
+        elms.x = x
+        elms.y = y
     }
 
     fun move(elms: RelativeLayout) {
@@ -67,7 +79,6 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
         fullscreen()
 
         app = applicationContext as ControlHubApplication
-
         if (app?.getInstance()!!.layouts.isEmpty()) {
             // Load the cached layouts
             app?.getInstance()!!.layouts.clear()
@@ -139,6 +150,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         app?.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == selectedLayout }.controls.forEach { control ->
             val view = findViewById<RelativeLayout>(control.elm.id)
             control.enableMovement(view)
+            control.onTap = { buttonMapDialog() }
             control.move(view)
         }
 
@@ -183,8 +195,30 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         return super.onTouchEvent(event)
     }
 
+    fun buttonMapDialog() {
+        val activity = this@CustomizeLayoutActivity
+        val builder = AlertDialog.Builder(activity)
+        val inflater = activity.layoutInflater
+        builder.setView(inflater.inflate(R.layout.buttons_map, null))
+
+        builder.setCancelable(true)
+        builder.setTitle("Button mapping")
+        builder.setPositiveButton("OK") { dialog, index ->
+
+
+            mDrawerLayout?.closeDrawers()
+            fullscreen()
+        }
+        builder.setNeutralButton("Cancel") { dialog, which ->
+            mDrawerLayout?.closeDrawers()
+            fullscreen()
+        }
+
+        // Build and show
+        builder.create().show()
+    }
+
     fun layoutSelection() {
-        // Build an AlertDialog
         val builder = AlertDialog.Builder(this@CustomizeLayoutActivity)
         var currentItem = layouts[0]
         builder.setSingleChoiceItems(layouts, layouts.indexOf(app!!.getInstance()?.selectedLayout)) { dialog, index ->
@@ -198,14 +232,15 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
             app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == app!!.getInstance()!!.selectedLayout }.controls.forEach { control ->
                 val view = findViewById<RelativeLayout>(control.elm.id)
                 control.enableMovement(view)
-                control.move(view)
+                control.moveNoWidth(view)
             }
 
             mDrawerLayout?.closeDrawers()
             fullscreen()
         }
         builder.setNeutralButton("Cancel") { dialog, which ->
-
+            mDrawerLayout?.closeDrawers()
+            fullscreen()
         }
 
         // Build and show

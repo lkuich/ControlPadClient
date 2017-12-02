@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18sp"
+        android:layout_marginBottom="18sp"
+        android:layout_marginLeft="18sp"
+        android:layout_marginRight="18sp">
+
+        <EditText
+            android:id="@+id/a_map"
+            android:fontFamily="@font/segoeui"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="12dp"
+            android:layout_toEndOf="@+id/a_lbl"
+            android:hint="A"
+            android:inputType="textEmailAddress" />
+
+        <TextView
+            android:id="@+id/a_lbl"
+            android:textSize="18sp"
+            android:fontFamily="@font/segoeui"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="A:" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="18sp"
+        android:layout_marginRight="18sp"
+        android:layout_marginBottom="18sp" >
+
+        <EditText
+            android:id="@+id/b_map"
+            android:fontFamily="@font/segoeui"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="12dp"
+            android:layout_toEndOf="@+id/b_lbl"
+            android:hint="B"
+            android:inputType="textEmailAddress" />
+
+        <TextView
+            android:id="@+id/b_lbl"
+            android:textSize="18sp"
+            android:fontFamily="@font/segoeui"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="B:" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="18sp"
+        android:layout_marginLeft="18sp"
+        android:layout_marginRight="18sp">
+
+        <EditText
+            android:id="@+id/y_map"
+            android:fontFamily="@font/segoeui"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="12dp"
+            android:layout_toEndOf="@+id/y_lbl"
+            android:hint="Y"
+            android:inputType="textEmailAddress" />
+
+        <TextView
+            android:id="@+id/y_lbl"
+            android:textSize="18sp"
+            android:fontFamily="@font/segoeui"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="Y:" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="18sp"
+        android:layout_marginRight="18sp">
+
+        <EditText
+            android:id="@+id/x_map"
+            android:fontFamily="@font/segoeui"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="12dp"
+            android:layout_toEndOf="@+id/x_lbl"
+            android:hint="X"
+            android:inputType="textEmailAddress" />
+
+        <TextView
+            android:id="@+id/x_lbl"
+            android:textSize="18sp"
+            android:fontFamily="@font/segoeui"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="X:" />
+    </RelativeLayout>
+</LinearLayout>

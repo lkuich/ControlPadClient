@@ -131,8 +131,8 @@ class HomeActivity : FragmentActivity() {
                     startActivity(intent)
                 })
 
-                (findViewById<ProgressBar>(R.id.progressSpinner)).visibility = View.INVISIBLE
-                (findViewById<TextView>(R.id.txtServerStatus)).text = "Found server (" + result + ")"
+                // (findViewById<ProgressBar>(R.id.progressSpinner)).visibility = View.INVISIBLE
+                (findViewById<TextView>(R.id.btnConnect)).text = "Connect (" + result + ")"
             }
         }).execute()
     }
