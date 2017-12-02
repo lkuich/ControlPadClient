@@ -150,7 +150,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         app?.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == selectedLayout }.controls.forEach { control ->
             val view = findViewById<RelativeLayout>(control.elm.id)
             control.enableMovement(view)
-            control.onTap = { buttonMapDialog(control.elm.id) }
+            control.onTap = { buttonMapDialog(control.elm.id ) }
             control.move(view)
         }
 
@@ -164,7 +164,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
                     layoutSelection()
                 }
                 1 -> { // Sync
-                    // Toggle sync
+                    finish()
                 }
                 2 -> { // Done
                     finish()
