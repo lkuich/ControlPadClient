@@ -21,8 +21,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="12dp"
             android:layout_toEndOf="@+id/a_lbl"
-            android:hint="A"
-            android:inputType="textEmailAddress" />
+            android:hint="A" />
 
         <TextView
             android:id="@+id/a_lbl"
@@ -51,8 +50,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="12dp"
             android:layout_toEndOf="@+id/b_lbl"
-            android:hint="B"
-            android:inputType="textEmailAddress" />
+            android:hint="B" />
 
         <TextView
             android:id="@+id/b_lbl"
@@ -81,8 +79,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="12dp"
             android:layout_toEndOf="@+id/y_lbl"
-            android:hint="Y"
-            android:inputType="textEmailAddress" />
+            android:hint="Y" />
 
         <TextView
             android:id="@+id/y_lbl"
@@ -110,8 +107,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="12dp"
             android:layout_toEndOf="@+id/x_lbl"
-            android:hint="X"
-            android:inputType="textEmailAddress" />
+            android:hint="X" />
 
         <TextView
             android:id="@+id/x_lbl"

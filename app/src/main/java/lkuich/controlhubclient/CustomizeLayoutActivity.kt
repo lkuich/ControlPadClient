@@ -150,7 +150,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         app?.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == selectedLayout }.controls.forEach { control ->
             val view = findViewById<RelativeLayout>(control.elm.id)
             control.enableMovement(view)
-            control.onTap = { buttonMapDialog() }
+            control.onTap = { buttonMapDialog(control.elm.id) }
             control.move(view)
         }
 
@@ -195,11 +195,25 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         return super.onTouchEvent(event)
     }
 
-    fun buttonMapDialog() {
+    fun buttonMapDialog(id: Int) {
         val activity = this@CustomizeLayoutActivity
         val builder = AlertDialog.Builder(activity)
         val inflater = activity.layoutInflater
-        builder.setView(inflater.inflate(R.layout.buttons_map, null))
+
+        var mapLayout: Int = 0
+        when (id) {
+            R.id.left_shoulder ->
+                mapLayout = R.layout.left_bumper_map
+            R.id.right_shoulder ->
+                mapLayout = R.layout.right_bumper_map
+            R.id.left_directional_pad ->
+                mapLayout = R.layout.single_button_map
+            R.id.right_directional_pad ->
+                mapLayout = R.layout.single_button_map
+            R.id.buttons ->
+                mapLayout = R.layout.buttons_map
+        }
+        builder.setView(inflater.inflate(mapLayout, null))
 
         builder.setCancelable(true)
         builder.setTitle("Button mapping")
