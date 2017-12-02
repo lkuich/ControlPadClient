@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -38,9 +37,10 @@ class LoginActivity : Activity() {
 
     override fun onStart() {
         super.onStart()
-        val currentUser: FirebaseUser? = mAuth?.currentUser
-        if (currentUser != null)
-            showHome(currentUser)
+        val user: FirebaseUser? = mAuth?.currentUser
+        if (user != null) {
+            showHome(user)
+        }
         else
             signinButton?.isEnabled = true
     }
@@ -76,7 +76,7 @@ class LoginActivity : Activity() {
 
     fun showHome(user: FirebaseUser) {
         app?.getInstance()!!.database = FirebaseDatabase.getInstance().reference.child(user.uid)
-        app?.getInstance()!!.database?.addListenerForSingleValueEvent(object : ValueEventListener {
+        app?.getInstance()!!.database?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // Show loading
                 findViewById<TextView>(R.id.loading).visibility = View.VISIBLE
@@ -89,12 +89,12 @@ class LoginActivity : Activity() {
                             app?.getInstance()!!.selectedLayout)
 
                     val defaultControls = mutableListOf(
-                        FirebaseControls(R.id.left_directional_pad.toString(), "0", "0"),
-                        FirebaseControls(R.id.right_directional_pad.toString(), "0", "0"),
-                        FirebaseControls(R.id.buttons.toString(), "0", "0"),
-                        FirebaseControls(R.id.dpad.toString(), "0", "0"),
-                        FirebaseControls(R.id.left_shoulder.toString(), "0", "0"),
-                        FirebaseControls(R.id.right_shoulder.toString(), "0", "0")
+                            FirebaseControls(R.id.left_directional_pad.toString(), "0", "0"),
+                            FirebaseControls(R.id.right_directional_pad.toString(), "0", "0"),
+                            FirebaseControls(R.id.buttons.toString(), "0", "0"),
+                            FirebaseControls(R.id.dpad.toString(), "0", "0"),
+                            FirebaseControls(R.id.left_shoulder.toString(), "0", "0"),
+                            FirebaseControls(R.id.right_shoulder.toString(), "0", "0")
                     )
 
                     val layouts = mutableListOf<FirebaseLayout>()
@@ -102,27 +102,32 @@ class LoginActivity : Activity() {
                         layouts.add(FirebaseLayout(it, defaultControls))
                     }
                     app?.getInstance()!!.database?.child("layouts")?.setValue(layouts)
-                }
-                app?.getInstance()?.selectedLayout = selectedLayout.toString()
+                } else {
+                    app?.getInstance()?.selectedLayout = selectedLayout.toString()
 
-                app?.getInstance()?.firebaseLayouts = dataSnapshot.child("layouts")
-                app?.getInstance()?.firebaseLayouts!!.children.forEach {
-                    val name = it.child("name").value.toString()
-                    val controls = mutableListOf<FirebaseControls>()
-                    it.child("controls").children.forEach { config ->
-                        config.value
-                        controls.add(FirebaseControls(
-                                config.child("id").value.toString(),
-                                config.child("x").value.toString(),
-                                config.child("y").value.toString()
-                        ))
+                    app?.getInstance()?.firebaseLayouts = dataSnapshot.child("layouts")
+                    app?.getInstance()?.firebaseLayouts!!.children.forEach {
+                        val name = it.child("name").value.toString()
+                        val controls = mutableListOf<FirebaseControls>()
+                        it.child("controls").children.forEach { config ->
+                            config.value
+                            controls.add(FirebaseControls(
+                                    config.child("id").value.toString(),
+                                    config.child("x").value.toString(),
+                                    config.child("y").value.toString()
+                            ))
+                        }
+                        val firebaseLayout = FirebaseLayout(name, controls)
+                        app?.getInstance()!!.cachedLayouts.add(firebaseLayout)
                     }
-                    val firebaseLayout = FirebaseLayout(name, controls)
-                    app?.getInstance()!!.cachedLayouts.add(firebaseLayout)
-                }
 
-                val intent = Intent(applicationContext, HomeActivity::class.java)
-                startActivity(intent)
+                    if (app?.getInstance()!!.cachedLayouts.size > 0) {
+                        app?.getInstance()!!.database?.removeEventListener(this)
+
+                        val intent = Intent(applicationContext, HomeActivity::class.java)
+                        startActivity(intent)
+                    }
+                }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

@@ -136,15 +136,10 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         val selectedLayout = app!!.getInstance()!!.selectedLayout
 
         // Set controls
-        if (!app?.getInstance()!!.layouts.isEmpty()) {
-            app?.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == selectedLayout }.controls.forEach { control ->
-                val view = findViewById<RelativeLayout>(control.elm.id)
-                control.enableMovement(view)
-                control.move(view)
-            }
-        } else {
-            // TODO: No layouts were loaded, this is a problem
-            val i =0
+        app?.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == selectedLayout }.controls.forEach { control ->
+            val view = findViewById<RelativeLayout>(control.elm.id)
+            control.enableMovement(view)
+            control.move(view)
         }
 
         val drawerItems = resources.getStringArray(R.array.config_options)
