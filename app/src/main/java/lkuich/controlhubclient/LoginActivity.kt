@@ -121,9 +121,8 @@ class LoginActivity : Activity() {
                         app?.getInstance()!!.cachedLayouts.add(firebaseLayout)
                     }
 
-                    if (app?.getInstance()!!.cachedLayouts.size > 0) {
-                        app?.getInstance()!!.database?.removeEventListener(this)
-
+                    if (app?.getInstance()!!.cachedLayouts.size > 0 && !app?.getInstance()?.homeLoaded!!) {
+                        // app?.getInstance()!!.database?.removeEventListener(this)
                         val intent = Intent(applicationContext, HomeActivity::class.java)
                         startActivity(intent)
                     }

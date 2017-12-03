@@ -21,6 +21,7 @@ class ControlHubApplication : Application() {
     var selectedLayout: String = "Default"
     var database: DatabaseReference? = null
     var firebaseLayouts: DataSnapshot? = null
+    var homeLoaded: Boolean = false
 
     fun getInstance(): ControlHubApplication? {
         return singleton

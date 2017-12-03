@@ -25,17 +25,7 @@ import java.net.DatagramSocket
 import java.net.InetAddress
 import android.os.StrictMode
 import android.os.AsyncTask
-import android.support.annotation.NonNull
-import android.util.Log
 import android.widget.Button
-import android.widget.ProgressBar
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.*
-import com.google.firebase.database.*
 
 
 class BroadcastReceiver(val postExecute: (result: String) -> Unit): AsyncTask<Void, Void, String>() {
@@ -92,6 +82,7 @@ class HomeActivity : FragmentActivity() {
     private var mPager: ViewPager? = null
     private var mPagerAdapter: PagerAdapter? = null
     private var selectedConfig = 0
+    var app: ControlHubApplication? = null
 
     companion object {
         val IP = "com.lkuich.controlhubclient.IP"
@@ -100,6 +91,9 @@ class HomeActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+
+        app = applicationContext as ControlHubApplication
+        app?.getInstance()?.homeLoaded = true
 
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = findViewById<ViewPager>(R.id.inputType)

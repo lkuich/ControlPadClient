@@ -13,9 +13,6 @@ import android.widget.RelativeLayout
 import android.content.Context
 import android.os.Vibrator
 import android.support.v4.view.MotionEventCompat
-import android.view.LayoutInflater
-
-
 
 class ElementPosition(val elm: RelativeLayout, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit) {
     var x: Float = elm.x
@@ -36,8 +33,8 @@ class ElementPosition(val elm: RelativeLayout, private val actionUp: (elm: View,
                             MotionEvent.ACTION_DOWN -> {
                             }
                             MotionEvent.ACTION_MOVE -> {
-                                target.x = evt.rawX - target.width / 2
-                                target.y = evt.rawY - target.height / 2
+                                target.x = evt.rawX // - target.width / 2
+                                target.y = evt.rawY // - target.height / 2
                             }
                             MotionEvent.ACTION_UP -> {
                                 actionUp(target, target.x, target.y)
@@ -53,19 +50,19 @@ class ElementPosition(val elm: RelativeLayout, private val actionUp: (elm: View,
     }
 
     fun setPos(x: Float, y: Float) {
-        this.x = x - elm.width / 2
-        this.y = y - elm.height / 2
+        this.x = x // - elm.width / 2
+        this.y = y // - elm.height / 2
     }
 
-    fun moveNoWidth(elms: RelativeLayout) {
+    fun move(elms: RelativeLayout) {
         elms.x = x
         elms.y = y
     }
 
-    fun move(elms: RelativeLayout) {
+    /*fun move(elms: RelativeLayout) {
         elms.x = x - elms.width / 2
         elms.y = y - elms.height / 2
-    }
+    }*/
 }
 
 abstract class BaseCanvasActivity: AppCompatActivity() {
@@ -116,7 +113,7 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
                 layout.child("controls").children.forEach { config ->
                     if (config.child("id").value.toString().toInt() == elm.id) {
                         val controls = app?.getInstance()?.database?.child("layouts")?.child(layout.key)?.child("controls")?.child(config.key)!!
-                        controls.child("x")?.setValue(rawX.toString())
+                        controls.child("x")?.setValue(rawX .toString())
                         controls.child("y")?.setValue(rawY.toString())
                     }
                 }
@@ -246,7 +243,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
             app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == app!!.getInstance()!!.selectedLayout }.controls.forEach { control ->
                 val view = findViewById<RelativeLayout>(control.elm.id)
                 control.enableMovement(view)
-                control.moveNoWidth(view)
+                control.move(view)
             }
 
             mDrawerLayout?.closeDrawers()
