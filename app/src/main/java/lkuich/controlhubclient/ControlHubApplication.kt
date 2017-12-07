@@ -9,7 +9,7 @@ import java.util.*
 
 
 class ControlLayout(val name: String, val controls: MutableList<ElementPosition>)
-data class FirebaseControls(val id: String, val x: String, val y: String) // Mapped by firebase
+data class FirebaseControls(val id: String, val key: MutableList<String>, val x: String, val y: String) // Mapped by firebase
 data class FirebaseLayout(val name: String, val controls: MutableList<FirebaseControls>) // Mapped by firebase
 
 class ControlHubApplication : Application() {

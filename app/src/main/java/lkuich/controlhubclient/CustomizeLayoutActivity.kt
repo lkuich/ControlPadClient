@@ -13,6 +13,11 @@ import android.widget.RelativeLayout
 import android.content.Context
 import android.os.Vibrator
 import android.support.v4.view.MotionEventCompat
+import android.view.Gravity
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener
+import com.github.amlcurran.showcaseview.targets.ActionViewTarget
+import com.github.amlcurran.showcaseview.ShowcaseView
+import com.github.amlcurran.showcaseview.targets.ViewTarget
 
 class ElementPosition(val elm: RelativeLayout, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit) {
     var x: Float = elm.x
@@ -160,14 +165,55 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
                 0 -> { // Select config
                     layoutSelection()
                 }
-                1 -> { // Sync
-                    finish()
-                }
-                2 -> { // Done
+                1 -> { // Done
                     finish()
                 }
             }
         })
+
+        showTutorial()
+    }
+
+    private fun showTutorial() {
+        val activity = this
+        val target = ViewTarget(R.id.left_directional_pad, this)
+        ShowcaseView.Builder(this, true)
+                .setTarget(target)
+                .setContentTitle("Controls")
+                .setContentText("Touch and hold to move, tap to map keys")
+                .hideOnTouchOutside()
+                .setShowcaseEventListener(object : OnShowcaseEventListener {
+                    override fun onShowcaseViewShow(showcaseView: ShowcaseView?) { }
+
+                    override fun onShowcaseViewHide(showcaseView: ShowcaseView?) { }
+
+                    override fun onShowcaseViewDidHide(showcaseView: ShowcaseView?) {
+                        // Show menu
+                        mDrawerLayout?.openDrawer(Gravity.START, true)
+                        val menuTarget = ViewTarget(mDrawerList?.getChildAt(0))
+                        ShowcaseView.Builder(activity, true)
+                                .setTarget(menuTarget)
+                                .setContentTitle("Menu")
+                                .setContentText("Swipe from the left to access other controls")
+                                .hideOnTouchOutside()
+                                .setShowcaseEventListener(object : OnShowcaseEventListener {
+                                    override fun onShowcaseViewShow(showcaseView: ShowcaseView?) { }
+
+                                    override fun onShowcaseViewHide(showcaseView: ShowcaseView?) { }
+
+                                    override fun onShowcaseViewDidHide(showcaseView: ShowcaseView?) {
+                                        mDrawerLayout?.closeDrawers()
+                                    }
+
+                                    override fun onShowcaseViewTouchBlocked(motionEvent: MotionEvent?) { }
+                                })
+                                .build()
+                    }
+
+                    override fun onShowcaseViewTouchBlocked(motionEvent: MotionEvent?) { }
+
+                })
+                .build()
     }
 
     private var mDrawerLayout: DrawerLayout? = null
@@ -197,7 +243,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         val builder = AlertDialog.Builder(activity)
         val inflater = activity.layoutInflater
 
-        var mapLayout: Int = 0
+        var mapLayout = 0
         when (id) {
             R.id.left_shoulder ->
                 mapLayout = R.layout.left_bumper_map
@@ -215,7 +261,6 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         builder.setCancelable(true)
         builder.setTitle("Button mapping")
         builder.setPositiveButton("OK") { dialog, index ->
-
 
             mDrawerLayout?.closeDrawers()
             fullscreen()

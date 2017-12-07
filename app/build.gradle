@@ -67,6 +67,7 @@ dependencies {
     compile 'com.google.firebase:firebase-auth:11.6.2'
     compile 'com.google.firebase:firebase-database:11.6.2'
     compile 'com.google.android.gms:play-services-auth:11.6.2'
+    compile 'com.github.amlcurran.showcaseview:library:5.4.3'
 }
 
 // ADD THIS AT THE BOTTOM

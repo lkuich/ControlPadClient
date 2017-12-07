@@ -89,12 +89,12 @@ class LoginActivity : Activity() {
                             app?.getInstance()!!.selectedLayout)
 
                     val defaultControls = mutableListOf(
-                            FirebaseControls(R.id.left_directional_pad.toString(), "0", "0"),
-                            FirebaseControls(R.id.right_directional_pad.toString(), "0", "0"),
-                            FirebaseControls(R.id.buttons.toString(), "0", "0"),
-                            FirebaseControls(R.id.dpad.toString(), "0", "0"),
-                            FirebaseControls(R.id.left_shoulder.toString(), "0", "0"),
-                            FirebaseControls(R.id.right_shoulder.toString(), "0", "0")
+                        FirebaseControls(R.id.left_directional_pad.toString(), mutableListOf("0x11"), "402", "278"), // ctrl
+                        FirebaseControls(R.id.right_directional_pad.toString(), mutableListOf("0x56"), "1407", "592"), // v
+                        FirebaseControls(R.id.buttons.toString(), mutableListOf("0x20", "0x11", "0x32", "0x52"), "1125", "182"), // A, B, Y, X
+                        FirebaseControls(R.id.dpad.toString(), mutableListOf("0"), "129", "663"),
+                        FirebaseControls(R.id.left_shoulder.toString(), mutableListOf("0", "0x0002"), "12", "20"), // Left Bumper / Left Trigger
+                        FirebaseControls(R.id.right_shoulder.toString(), mutableListOf("0", "0x0008"), "1640", "20") // Right Bumper / Right Trigger
                     )
 
                     val layouts = mutableListOf<FirebaseLayout>()
@@ -113,6 +113,7 @@ class LoginActivity : Activity() {
                             config.value
                             controls.add(FirebaseControls(
                                     config.child("id").value.toString(),
+                                    config.child("key").value as MutableList<String>,
                                     config.child("x").value.toString(),
                                     config.child("y").value.toString()
                             ))
