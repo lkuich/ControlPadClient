@@ -23,7 +23,25 @@
         android:textAlignment="center"
         android:textSize="16sp"
         android:textColor="@color/white"
-        android:text="We keep your appdata in the cloud! This keeps all your connected devices in sync with your settings" />
+        android:layout_marginLeft="18sp"
+        android:layout_marginRight="18sp"
+        android:text="We keep your appdata secure in the cloud! This keeps all your connected devices in sync" />
+
+    <LinearLayout
+        android:id="@+id/login_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="vertical" >
+
+        <ProgressBar
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginBottom="18sp" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,17 +50,6 @@
         android:gravity="center|bottom"
         android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/loading"
-            android:visibility="invisible"
-            android:layout_marginBottom="12sp"
-            android:fontFamily="@font/segoeuil"
-            android:textAlignment="center"
-            android:textSize="16sp"
-            android:textColor="@color/white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Fetching your information..." />
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/sign_in_button"

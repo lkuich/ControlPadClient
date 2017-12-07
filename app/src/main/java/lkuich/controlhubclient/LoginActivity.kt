@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -33,6 +34,7 @@ class LoginActivity : Activity() {
         signinButton?.setOnClickListener({
             googleSignin()
         })
+        findViewById<LinearLayout>(R.id.login_progress).visibility = View.INVISIBLE
     }
 
     override fun onStart() {
@@ -79,7 +81,7 @@ class LoginActivity : Activity() {
         app?.getInstance()!!.database?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // Show loading
-                findViewById<TextView>(R.id.loading).visibility = View.VISIBLE
+                findViewById<LinearLayout>(R.id.login_progress).visibility = View.VISIBLE
                 findViewById<SignInButton>(R.id.sign_in_button).isEnabled = false
 
                 val selectedLayout: Any? = dataSnapshot.child("selectedLayout").value

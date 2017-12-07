@@ -15,13 +15,13 @@ import android.os.Vibrator
 import android.support.v4.view.MotionEventCompat
 import android.view.Gravity
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener
-import com.github.amlcurran.showcaseview.targets.ActionViewTarget
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.github.amlcurran.showcaseview.targets.ViewTarget
 
-class ElementPosition(val elm: RelativeLayout, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit) {
+class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit) {
     var x: Float = elm.x
     var y: Float = elm.y
+
     private val vibrator: Vibrator = (elm.context.getSystemService(Context.VIBRATOR_SERVICE)) as Vibrator
     lateinit var onTap: () -> Unit
 
@@ -38,8 +38,8 @@ class ElementPosition(val elm: RelativeLayout, private val actionUp: (elm: View,
                             MotionEvent.ACTION_DOWN -> {
                             }
                             MotionEvent.ACTION_MOVE -> {
-                                target.x = evt.rawX // - target.width / 2
-                                target.y = evt.rawY // - target.height / 2
+                                target.x = evt.rawX - target.width / 2
+                                target.y = evt.rawY - target.height / 2
                             }
                             MotionEvent.ACTION_UP -> {
                                 actionUp(target, target.x, target.y)
@@ -90,7 +90,7 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
                 it.controls.forEach { control ->
                     // Go through each control
                     val element = findViewById<RelativeLayout>(control.id.toInt()) // get elm
-                    val ctrl = ElementPosition(element, { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) })
+                    val ctrl = ElementPosition(element, control.key, { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) })
                     ctrl.setPos(control.x.toFloat(), control.y.toFloat())
                     ctrl.move(element)
 
@@ -242,21 +242,42 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         val activity = this@CustomizeLayoutActivity
         val builder = AlertDialog.Builder(activity)
         val inflater = activity.layoutInflater
+        val keys = app?.layouts!!.first { it.name == app?.selectedLayout }.controls.first { it.elm.id == id }.keys
 
         var mapLayout = 0
         when (id) {
-            R.id.left_shoulder ->
-                mapLayout = R.layout.left_bumper_map
-            R.id.right_shoulder ->
-                mapLayout = R.layout.right_bumper_map
-            R.id.left_directional_pad ->
-                mapLayout = R.layout.single_button_map
-            R.id.right_directional_pad ->
-                mapLayout = R.layout.single_button_map
-            R.id.buttons ->
-                mapLayout = R.layout.buttons_map
+            R.id.left_shoulder -> mapLayout = R.layout.left_bumper_map
+            R.id.right_shoulder -> mapLayout = R.layout.right_bumper_map
+            R.id.left_directional_pad -> mapLayout = R.layout.single_button_map
+            R.id.right_directional_pad -> mapLayout = R.layout.single_button_map
+            R.id.buttons -> mapLayout = R.layout.buttons_map
+            else -> return
         }
-        builder.setView(inflater.inflate(mapLayout, null))
+        val context = inflater.inflate(mapLayout, null)
+        builder.setView(context)
+
+        when (id) {
+            R.id.left_shoulder -> {
+                context.findViewById<EditText>(R.id.left_bumper_map).setText(keys[0])
+                context.findViewById<EditText>(R.id.left_trigger_map).setText(keys[1])
+            }
+            R.id.right_shoulder -> {
+                context.findViewById<EditText>(R.id.right_bumper_map).setText(keys[0])
+                context.findViewById<EditText>(R.id.right_trigger_map).setText(keys[1])
+            }
+            R.id.left_directional_pad -> {
+                context.findViewById<EditText>(R.id.thumbstick_key).setText(keys[0])
+            }
+            R.id.right_directional_pad -> {
+                context.findViewById<EditText>(R.id.thumbstick_key).setText(keys[0])
+            }
+            R.id.buttons -> {
+                context.findViewById<EditText>(R.id.a_map).setText(keys[0])
+                context.findViewById<EditText>(R.id.b_map).setText(keys[1])
+                context.findViewById<EditText>(R.id.y_map).setText(keys[2])
+                context.findViewById<EditText>(R.id.x_map).setText(keys[3])
+            }
+        }
 
         builder.setCancelable(true)
         builder.setTitle("Button mapping")
