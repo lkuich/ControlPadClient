@@ -14,7 +14,13 @@ import service.XboxButtonsGrpc
 import service.Services
 import android.support.v4.view.MotionEventCompat
 
-class BaseControlActivity : BaseCanvasActivity() {
+enum class ControlType {
+    STD, XBOX
+}
+
+abstract class BaseControlActivity(controlType: ControlType) : BaseCanvasActivity() {
+}
+/*
     private var xboxStream: XboxStream? = null
     private var mouseStream: MouseStream? = null
     private var keyboardStream: KeyboardStream? = null
@@ -311,3 +317,4 @@ private class XboxStream(stub: XboxButtonsGrpc.XboxButtonsStub) : GrpcStream() {
         // Complete
     }
 }
+*/

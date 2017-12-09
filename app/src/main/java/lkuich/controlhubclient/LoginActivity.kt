@@ -92,18 +92,9 @@ class LoginActivity : Activity() {
                     app?.getInstance()!!.database?.child("selectedLayout")?.setValue(
                             app?.getInstance()!!.selectedLayout)
 
-                    val defaultControls = mutableListOf(
-                        FirebaseControls(R.id.left_directional_pad.toString(), mutableListOf("0x11"), "402", "278"), // ctrl
-                        FirebaseControls(R.id.right_directional_pad.toString(), mutableListOf("0x56"), "1407", "592"), // v
-                        FirebaseControls(R.id.buttons.toString(), mutableListOf("0x20", "0x11", "0x32", "0x52"), "1125", "182"), // A, B, Y, X
-                        FirebaseControls(R.id.dpad.toString(), mutableListOf("0"), "129", "663"),
-                        FirebaseControls(R.id.left_shoulder.toString(), mutableListOf("0", "0x0002"), "12", "20"), // Left Bumper / Left Trigger
-                        FirebaseControls(R.id.right_shoulder.toString(), mutableListOf("0", "0x0008"), "1640", "20") // Right Bumper / Right Trigger
-                    )
-
                     val layouts = mutableListOf<FirebaseLayout>()
                     app?.getInstance()!!.layoutNames.forEach {
-                        layouts.add(FirebaseLayout(it, defaultControls))
+                        layouts.add(FirebaseLayout(it, app?.getInstance()!!.defaultControls))
                     }
                     app?.getInstance()!!.database?.child("layouts")?.setValue(layouts)
                     app?.getInstance()!!.database?.child("firstRun")?.setValue(app?.getInstance()!!.firstRun)

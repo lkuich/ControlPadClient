@@ -23,6 +23,14 @@ class ControlHubApplication : Application() {
     var firebaseLayouts: DataSnapshot? = null
     var homeLoaded: Boolean = false
     var firstRun: Boolean = true
+    val defaultControls = mutableListOf(
+            FirebaseControls(R.id.left_directional_pad.toString(), mutableListOf("0x11"), "402", "278"), // ctrl
+            FirebaseControls(R.id.right_directional_pad.toString(), mutableListOf("0x56"), "1407", "592"), // v
+            FirebaseControls(R.id.buttons.toString(), mutableListOf("0x20", "0x11", "0x32", "0x52"), "1125", "182"), // A, B, Y, X
+            FirebaseControls(R.id.dpad.toString(), mutableListOf("0x03"), "129", "663"),
+            FirebaseControls(R.id.left_shoulder.toString(), mutableListOf("0x03", "0x01"), "12", "20"), // Left Bumper / Left Trigger
+            FirebaseControls(R.id.right_shoulder.toString(), mutableListOf("0x03", "0x02"), "1640", "20") // Right Bumper / Right Trigger
+    )
 
     fun getInstance(): ControlHubApplication? {
         return singleton

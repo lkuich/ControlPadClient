@@ -1,32 +1,15 @@
 package lkuich.controlhubclient
 
-import android.annotation.SuppressLint
-import android.support.v7.app.AppCompatActivity
-import android.os.Bundle
 import android.view.View
-import android.view.WindowManager
-import android.content.pm.ActivityInfo
-import android.app.Activity
-import android.os.AsyncTask
-import android.text.TextUtils
-import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
-import android.widget.RelativeLayout
-import com.google.common.primitives.UnsignedInteger
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
-import java.io.PrintWriter
-import java.io.StringWriter
-import java.util.concurrent.TimeUnit
-
 import service.StandardInputGrpc
 import service.Services
-import io.grpc.stub.StreamObserver
 
 
 class Axis (var x: Float, var y: Float) {
-
     fun keyCode(vararg keys: Char): IntArray {
         val out = mutableListOf<Int>()
         for (key in keys) {
@@ -114,24 +97,35 @@ class CanvasActivity : BaseCanvasActivity() {
                     button(R.id.y_button, control.keys[2].toInt())
                     button(R.id.x_button, control.keys[3].toInt())
                 }
+                R.id.left_shoulder -> {
+                    button(R.id.lb, control.keys[0].toInt())
+                    button(R.id.lt, control.keys[1].toInt())
+                }
+                R.id.right_shoulder -> {
+                    button(R.id.rb, control.keys[0].toInt())
+                    button(R.id.rt, control.keys[1].toInt())
+                }
+                R.id.left_directional_pad -> {
+                    analogStick(R.id.left_analog_inner, { x, y ->
+                        val axis = Axis(x, y)
+
+                        // val sensitivity = 1
+                        val keys = axis.greatestKey()
+                        sendKey(keys[0], if (keys.size > 1) keys[1] else 0)
+                    }, {
+                        sendKey(control.keys[0].toInt())
+                    }, true)
+                }
+                R.id.right_directional_pad -> {
+                    analogStick(R.id.right_analog_inner, {x, y ->
+                        // Log.v("mouse:", x.toString() + "," + y.toString())
+                        sendMouse(x.toInt(), y.toInt())
+                    }, {
+                        sendKey(control.keys[0].toInt())
+                    }, false)
+                }
             }
         }
-
-        analogStick(R.id.left_analog_inner, { x, y ->
-            val axis = Axis(x, y)
-
-            // val sensitivity = 1
-            val keys = axis.greatestKey()
-            sendKey(keys[0], if (keys.size > 1) keys[1] else 0)
-        }, true)
-
-        analogStick(R.id.right_analog_inner, {x, y ->
-            // Log.v("mouse:", x.toString() + "," + y.toString())
-            sendMouse(x.toInt(), y.toInt())
-        }, false)
-
-        button(R.id.lb, 0x0100)
-        button(R.id.rb, 0x0200)
 
         val IP = intent.getStringExtra(HomeActivity.IP)
         val stub = createStub(IP)
@@ -164,7 +158,7 @@ class CanvasActivity : BaseCanvasActivity() {
     }
 
     // Replace bool with function
-    fun analogStick(id: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, sendCancel: Boolean) {
+    fun analogStick(id: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, onPressure: () -> Unit, sendCancel: Boolean) {
         val analog = findViewById<ImageView>(id)
         var analogStartCoords: FloatArray? = null
         var startCoords: FloatArray? = null
@@ -177,6 +171,9 @@ class CanvasActivity : BaseCanvasActivity() {
                     startCoords = floatArrayOf(evt.rawX, evt.rawY)
                 }
                 MotionEvent.ACTION_MOVE -> {
+                    if (evt.pressure > 1.3)
+                        onPressure()
+
                     val evtX = evt.rawX
                     val evtY = evt.rawY
 
