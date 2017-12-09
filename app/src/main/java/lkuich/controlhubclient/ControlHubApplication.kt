@@ -22,6 +22,7 @@ class ControlHubApplication : Application() {
     var database: DatabaseReference? = null
     var firebaseLayouts: DataSnapshot? = null
     var homeLoaded: Boolean = false
+    var firstRun: Boolean = true
 
     fun getInstance(): ControlHubApplication? {
         return singleton

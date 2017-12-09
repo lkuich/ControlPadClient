@@ -171,7 +171,13 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
             }
         })
 
-        showTutorial()
+        if (app?.getInstance()!!.firstRun) {
+            showTutorial()
+
+            // Set to not first run
+            app?.getInstance()!!.firstRun = false
+            app?.getInstance()!!.database?.child("firstRun")?.setValue(app?.getInstance()!!.firstRun)
+        }
     }
 
     private fun showTutorial() {

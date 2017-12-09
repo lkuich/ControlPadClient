@@ -103,12 +103,19 @@ class CanvasActivity : BaseCanvasActivity() {
 
     override fun onCreate() {
         app?.getInstance()?.layouts?.first { controlLayout -> controlLayout.name == app!!.getInstance()?.selectedLayout }?.controls?.forEach { control ->
+            // Move controls into position
             control.move(findViewById(control.elm.id))
-        }
 
-        val stub = createStub()
-        mouseStream = MouseStream(stub)
-        keyboardStream = KeyboardStream(stub)
+            // Get keymaps
+            when (control.elm.id) {
+                R.id.buttons -> {
+                    button(R.id.a_button, control.keys[0].toInt())
+                    button(R.id.b_button, control.keys[1].toInt())
+                    button(R.id.y_button, control.keys[2].toInt())
+                    button(R.id.x_button, control.keys[3].toInt())
+                }
+            }
+        }
 
         analogStick(R.id.left_analog_inner, { x, y ->
             val axis = Axis(x, y)
@@ -116,8 +123,6 @@ class CanvasActivity : BaseCanvasActivity() {
             // val sensitivity = 1
             val keys = axis.greatestKey()
             sendKey(keys[0], if (keys.size > 1) keys[1] else 0)
-
-            Log.v("y/x:", (y / x).toString())
         }, true)
 
         analogStick(R.id.right_analog_inner, {x, y ->
@@ -125,14 +130,17 @@ class CanvasActivity : BaseCanvasActivity() {
             sendMouse(x.toInt(), y.toInt())
         }, false)
 
-        button(R.id.a_button, 0x20) // Spacebar
-        button(R.id.b_button, 0x11) // Ctrl
-        button(R.id.x_button, 0x52) // R
-        button(R.id.y_button, 0x32) // 2
+        button(R.id.lb, 0x0100)
+        button(R.id.rb, 0x0200)
+
+        val IP = intent.getStringExtra(HomeActivity.IP)
+        val stub = createStub(IP)
+        mouseStream = MouseStream(stub)
+        keyboardStream = KeyboardStream(stub)
     }
 
-    fun createStub(): StandardInputGrpc.StandardInputStub {
-        val host: String = getString(R.string.grpc_ip)
+    fun createStub(ip: String): StandardInputGrpc.StandardInputStub {
+        val host: String = ip
         val port: Int = 50051
 
         val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
@@ -278,19 +286,3 @@ private class MouseStream(stub: StandardInputGrpc.StandardInputStub) : GrpcStrea
         // Complete
     }
 }
-
-/*
-private class MouseTask(private var mousCoords: Services.MouseCoords) : GrpcTask() {
-    override fun commands(): String {
-        val response = stub?.moveMouse(mousCoords)
-        return response?.received.toString()
-    }
-}
-
-private class KeyboardTask(private var keyToSend: Services.Key) : GrpcTask() {
-    override fun commands(): String {
-        val response = stub?.pressKey(keyToSend)
-        return response?.received.toString()
-    }
-}
-*/
