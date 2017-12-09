@@ -92,18 +92,18 @@ class CanvasActivity : BaseCanvasActivity() {
             // Get keymaps
             when (control.elm.id) {
                 R.id.buttons -> {
-                    button(R.id.a_button, control.keys[0].toInt())
-                    button(R.id.b_button, control.keys[1].toInt())
-                    button(R.id.y_button, control.keys[2].toInt())
-                    button(R.id.x_button, control.keys[3].toInt())
+                    button(R.id.a_button, control.keys[0])
+                    button(R.id.b_button, control.keys[1])
+                    button(R.id.y_button, control.keys[2])
+                    button(R.id.x_button, control.keys[3])
                 }
                 R.id.left_shoulder -> {
-                    button(R.id.lb, control.keys[0].toInt())
-                    button(R.id.lt, control.keys[1].toInt())
+                    button(R.id.lb, control.keys[0])
+                    button(R.id.lt, control.keys[1])
                 }
                 R.id.right_shoulder -> {
-                    button(R.id.rb, control.keys[0].toInt())
-                    button(R.id.rt, control.keys[1].toInt())
+                    button(R.id.rb, control.keys[0])
+                    button(R.id.rt, control.keys[1])
                 }
                 R.id.left_directional_pad -> {
                     analogStick(R.id.left_analog_inner, { x, y ->
@@ -113,7 +113,7 @@ class CanvasActivity : BaseCanvasActivity() {
                         val keys = axis.greatestKey()
                         sendKey(keys[0], if (keys.size > 1) keys[1] else 0)
                     }, {
-                        sendKey(control.keys[0].toInt())
+                        sendKey(control.keys[0])
                     }, true)
                 }
                 R.id.right_directional_pad -> {
@@ -121,7 +121,7 @@ class CanvasActivity : BaseCanvasActivity() {
                         // Log.v("mouse:", x.toString() + "," + y.toString())
                         sendMouse(x.toInt(), y.toInt())
                     }, {
-                        sendKey(control.keys[0].toInt())
+                        sendKey(control.keys[0])
                     }, false)
                 }
             }
@@ -142,14 +142,14 @@ class CanvasActivity : BaseCanvasActivity() {
     }
 
     fun button(id: Int, key: Int) {
-        val button = findViewById<ImageView>(id)
+        val button = findViewById<View>(id)
         button.setOnTouchListener(
             View.OnTouchListener { v, evt ->
-                when (evt.action) {
+                 when (evt.action) {
                     MotionEvent.ACTION_DOWN -> {
                         sendKey(key)
                     }
-                    MotionEvent.ACTION_UP -> {
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         sendKey(0x03)
                     }
                 }

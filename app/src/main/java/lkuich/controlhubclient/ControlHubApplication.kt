@@ -9,7 +9,7 @@ import java.util.*
 
 
 class ControlLayout(val name: String, val controls: MutableList<ElementPosition>)
-data class FirebaseControls(val id: String, val key: MutableList<String>, val x: String, val y: String) // Mapped by firebase
+data class FirebaseControls(val id: String, val key: MutableList<Int>, val x: Int, val y: Int) // Mapped by firebase
 data class FirebaseLayout(val name: String, val controls: MutableList<FirebaseControls>) // Mapped by firebase
 
 class ControlHubApplication : Application() {
@@ -24,12 +24,12 @@ class ControlHubApplication : Application() {
     var homeLoaded: Boolean = false
     var firstRun: Boolean = true
     val defaultControls = mutableListOf(
-            FirebaseControls(R.id.left_directional_pad.toString(), mutableListOf("0x11"), "402", "278"), // ctrl
-            FirebaseControls(R.id.right_directional_pad.toString(), mutableListOf("0x56"), "1407", "592"), // v
-            FirebaseControls(R.id.buttons.toString(), mutableListOf("0x20", "0x11", "0x32", "0x52"), "1125", "182"), // A, B, Y, X
-            FirebaseControls(R.id.dpad.toString(), mutableListOf("0x03"), "129", "663"),
-            FirebaseControls(R.id.left_shoulder.toString(), mutableListOf("0x03", "0x01"), "12", "20"), // Left Bumper / Left Trigger
-            FirebaseControls(R.id.right_shoulder.toString(), mutableListOf("0x03", "0x02"), "1640", "20") // Right Bumper / Right Trigger
+            FirebaseControls(R.id.left_directional_pad.toString(), mutableListOf(0x11), 402, 278), // ctrl
+            FirebaseControls(R.id.right_directional_pad.toString(), mutableListOf(0x56), 1407, 592), // v
+            FirebaseControls(R.id.buttons.toString(), mutableListOf(0x20, 0x11, 0x32, 0x52), 1125, 182), // A, B, Y, X
+            FirebaseControls(R.id.dpad.toString(), mutableListOf(0x03), 129, 663),
+            FirebaseControls(R.id.left_shoulder.toString(), mutableListOf(0x03, 0x02), 12, 20), // Left Bumper / Left Trigger
+            FirebaseControls(R.id.right_shoulder.toString(), mutableListOf(0x03, 0x01), 1640, 20) // Right Bumper / Right Trigger
     )
 
     fun getInstance(): ControlHubApplication? {

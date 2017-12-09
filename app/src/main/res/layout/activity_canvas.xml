@@ -218,17 +218,17 @@
             android:orientation="vertical">
 
             <ImageView
-                android:id="@+id/lb"
+                android:id="@+id/lt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/trigger" />
 
             <ImageView
-                android:id="@+id/lt"
+                android:id="@+id/lb"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
-                android:layout_below="@+id/lb"
+                android:layout_below="@+id/lt"
                 android:src="@drawable/shoulder" />
         </RelativeLayout>
 
@@ -239,18 +239,19 @@
             android:orientation="vertical">
 
             <ImageView
-                android:id="@+id/rb"
+                android:id="@+id/rt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/trigger" />
 
             <ImageView
-                android:id="@+id/rt"
+                android:id="@+id/rb"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/rt"
                 android:paddingTop="10dp"
-                android:layout_below="@+id/rb"
                 android:src="@drawable/shoulder" />
+
         </RelativeLayout>
     </RelativeLayout>
 

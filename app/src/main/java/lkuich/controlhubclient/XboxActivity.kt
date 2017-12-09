@@ -13,6 +13,7 @@ import io.grpc.ManagedChannelBuilder
 import service.XboxButtonsGrpc
 import service.Services
 import android.support.v4.view.MotionEventCompat
+import android.widget.RelativeLayout
 
 class XboxActivity : BaseCanvasActivity() {
     private var xboxStream: XboxStream? = null
@@ -107,7 +108,7 @@ class XboxActivity : BaseCanvasActivity() {
     }
 
     fun button(id: Int, key: Int) {
-        val button = findViewById<ImageView>(id)
+        val button = findViewById<View>(id)
         button.setOnTouchListener(
             View.OnTouchListener { v, evt ->
                 when (evt.action) {
