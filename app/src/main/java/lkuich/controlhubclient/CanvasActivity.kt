@@ -131,6 +131,8 @@ class CanvasActivity : BaseCanvasActivity() {
         val stub = createStub(IP)
         mouseStream = MouseStream(stub)
         keyboardStream = KeyboardStream(stub)
+
+        // Send disconnect
     }
 
     fun createStub(ip: String): StandardInputGrpc.StandardInputStub {
@@ -268,7 +270,7 @@ private class MouseStream(stub: StandardInputGrpc.StandardInputStub) : GrpcStrea
         if (failed != null) {
             throw RuntimeException(failed)
         }
-        lastSent = x.toString() + "," + y.toString();
+        lastSent = x.toString() + "," + y.toString()
     }
 
     override fun onResponseNext(response: Services.Response) {
