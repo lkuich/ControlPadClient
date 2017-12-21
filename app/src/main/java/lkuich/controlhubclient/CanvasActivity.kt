@@ -291,7 +291,7 @@ private class MouseStream(stub: StandardInputGrpc.StandardInputStub, val screens
 
     override fun onResponseNext(response: Services.ScreenshotData) {
         // Response
-        screenshotDataRecieved(response)
+        // screenshotDataRecieved(response)
     }
 
     override fun onResponseError(t: Throwable) {
