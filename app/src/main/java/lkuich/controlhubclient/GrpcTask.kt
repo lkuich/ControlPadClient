@@ -4,19 +4,19 @@ import android.os.AsyncTask
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.stub.StreamObserver
-import service.RobotGrpc
 import service.Services
+import service.Services.ScreenshotData
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.concurrent.TimeUnit
 
 
 abstract class GrpcStream {
-    abstract fun onResponseNext(response: Services.Response)
+    abstract fun onResponseNext(response: ScreenshotData)
     abstract fun onResponseError(t: Throwable)
     abstract fun onResponseCompleted()
 
-    protected var responseObserver: StreamObserver<Services.Response>? = null
+    protected var responseObserver: StreamObserver<Services.ScreenshotData>? = null
     protected var xboxPressButtonRequestObserver: StreamObserver<Services.XboxButton>? = null
     protected var xboxDepressButtonRequestObserver: StreamObserver<Services.XboxButton>? = null
     protected var xboxLeftThumbAxisRequestObserver: StreamObserver<Services.XboxThumbAxis>? = null
@@ -30,8 +30,8 @@ abstract class GrpcStream {
     protected var failed: Throwable? = null
 
     init {
-        responseObserver = object : StreamObserver<Services.Response> {
-            override fun onNext(response: Services.Response) {
+        responseObserver = object : StreamObserver<ScreenshotData> {
+            override fun onNext(response: ScreenshotData) {
                 onResponseNext(response)
             }
 

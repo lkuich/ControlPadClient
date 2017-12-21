@@ -1,8 +1,12 @@
 package lkuich.controlhubclient
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.view.View
 import android.view.MotionEvent
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import service.StandardInputGrpc
@@ -129,10 +133,21 @@ class CanvasActivity : BaseCanvasActivity() {
 
         val IP = intent.getStringExtra(HomeActivity.IP)
         val stub = createStub(IP)
-        mouseStream = MouseStream(stub)
-        keyboardStream = KeyboardStream(stub)
+        mouseStream = MouseStream(stub, { imageRecieved(it) })
+        keyboardStream = KeyboardStream(stub, { imageRecieved(it) })
 
         // Send disconnect
+    }
+
+    fun imageRecieved(data: Services.ScreenshotData) {
+        val view = findViewById<RelativeLayout>(R.id.mainContent)
+        val byteArray = data.content.toByteArray()
+
+        val bmp: Bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+        // ImageView image = (ImageView) findViewById(R.id.imageView1)
+        val drawable = BitmapDrawable(resources, Bitmap.createScaledBitmap(bmp, 1920, 1080, false))
+
+        view.background = drawable
     }
 
     fun createStub(ip: String): StandardInputGrpc.StandardInputStub {
@@ -211,7 +226,7 @@ class CanvasActivity : BaseCanvasActivity() {
     }
 }
 
-private class KeyboardStream(stub: StandardInputGrpc.StandardInputStub) : GrpcStream() {
+private class KeyboardStream(stub: StandardInputGrpc.StandardInputStub, val screenshotDataRecieved: (data: Services.ScreenshotData) -> Unit) : GrpcStream() {
     var lastSent: IntArray = intArrayOf(0, 0)
 
     init {
@@ -224,7 +239,7 @@ private class KeyboardStream(stub: StandardInputGrpc.StandardInputStub) : GrpcSt
             keyboardRequestObserver?.onNext(request)
         } catch (e: java.lang.RuntimeException) {
             // Cancel RPC
-            responseObserver?.onError(e)
+            keyboardRequestObserver?.onError(e)
             throw e
         }
         // requestObserver?.onCompleted()
@@ -236,8 +251,9 @@ private class KeyboardStream(stub: StandardInputGrpc.StandardInputStub) : GrpcSt
         lastSent = intArrayOf(firstKey, secondKey)
     }
 
-    override fun onResponseNext(response: Services.Response) {
+    override fun onResponseNext(response: Services.ScreenshotData) {
         // Response
+        screenshotDataRecieved(response)
     }
 
     override fun onResponseError(t: Throwable) {
@@ -249,7 +265,7 @@ private class KeyboardStream(stub: StandardInputGrpc.StandardInputStub) : GrpcSt
     }
 }
 
-private class MouseStream(stub: StandardInputGrpc.StandardInputStub) : GrpcStream() {
+private class MouseStream(stub: StandardInputGrpc.StandardInputStub, val screenshotDataRecieved: (data: Services.ScreenshotData) -> Unit) : GrpcStream() {
     var lastSent: String = ""
 
     init {
@@ -262,7 +278,7 @@ private class MouseStream(stub: StandardInputGrpc.StandardInputStub) : GrpcStrea
             mouseRequestObserver?.onNext(request) // Sends the coords
         } catch (e: RuntimeException) {
             // Cancel RPC
-            responseObserver?.onError(e)
+            mouseRequestObserver?.onError(e)
             throw e
         }
         // requestObserver?.onCompleted()
@@ -273,8 +289,9 @@ private class MouseStream(stub: StandardInputGrpc.StandardInputStub) : GrpcStrea
         lastSent = x.toString() + "," + y.toString()
     }
 
-    override fun onResponseNext(response: Services.Response) {
+    override fun onResponseNext(response: Services.ScreenshotData) {
         // Response
+        screenshotDataRecieved(response)
     }
 
     override fun onResponseError(t: Throwable) {

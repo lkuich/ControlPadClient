@@ -298,7 +298,7 @@ private class XboxStream(stub: XboxButtonsGrpc.XboxButtonsStub) : GrpcStream() {
         }
     }
 
-    override fun onResponseNext(response: Services.Response) {
+    override fun onResponseNext(response: Services.ScreenshotData) {
         // Response
     }
 
