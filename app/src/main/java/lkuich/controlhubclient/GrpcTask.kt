@@ -1,15 +1,7 @@
 package lkuich.controlhubclient
 
-import android.os.AsyncTask
-import io.grpc.ManagedChannel
-import io.grpc.ManagedChannelBuilder
 import io.grpc.stub.StreamObserver
-import service.RobotGrpc
 import service.Services
-import java.io.PrintWriter
-import java.io.StringWriter
-import java.util.concurrent.TimeUnit
-
 
 abstract class GrpcStream {
     abstract fun onResponseNext(response: Services.Response)

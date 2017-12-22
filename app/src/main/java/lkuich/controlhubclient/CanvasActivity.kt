@@ -224,7 +224,7 @@ private class KeyboardStream(stub: StandardInputGrpc.StandardInputStub) : GrpcSt
             keyboardRequestObserver?.onNext(request)
         } catch (e: java.lang.RuntimeException) {
             // Cancel RPC
-            responseObserver?.onError(e)
+            keyboardRequestObserver?.onError(e)
             throw e
         }
         // requestObserver?.onCompleted()
@@ -262,7 +262,7 @@ private class MouseStream(stub: StandardInputGrpc.StandardInputStub) : GrpcStrea
             mouseRequestObserver?.onNext(request) // Sends the coords
         } catch (e: RuntimeException) {
             // Cancel RPC
-            responseObserver?.onError(e)
+            mouseRequestObserver?.onError(e)
             throw e
         }
         // requestObserver?.onCompleted()
@@ -275,6 +275,7 @@ private class MouseStream(stub: StandardInputGrpc.StandardInputStub) : GrpcStrea
 
     override fun onResponseNext(response: Services.Response) {
         // Response
+        val i = 0
     }
 
     override fun onResponseError(t: Throwable) {

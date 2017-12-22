@@ -185,11 +185,10 @@ class ScreenSlidePageFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pageNumber = arguments.getInt(ARG_PAGE)
+        pageNumber = arguments!!.getInt(ARG_PAGE)
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout containing a title and body text.
         val rootView = inflater!!.inflate(R.layout.control_thumbnail, container, false) as ViewGroup
 
