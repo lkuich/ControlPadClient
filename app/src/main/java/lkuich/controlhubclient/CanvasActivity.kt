@@ -163,13 +163,15 @@ class CanvasActivity : BaseCanvasActivity() {
     fun analogStick(id: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, onPressure: () -> Unit, sendCancel: Boolean) {
         val analog = findViewById<ImageView>(id)
         var analogStartCoords: FloatArray? = null
+        var analogCoords: FloatArray? = null
         var startCoords: FloatArray? = null
 
         analog.setOnTouchListener(
                 View.OnTouchListener { v, evt ->
             when (evt.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    analogStartCoords = floatArrayOf(analog.x, analog.y)
+                    analogStartCoords = floatArrayOf(v.x, v.y)
+                    analogCoords = floatArrayOf(v.x - evt.rawX, v.y - evt.rawY)
                     startCoords = floatArrayOf(evt.rawX, evt.rawY)
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -179,8 +181,11 @@ class CanvasActivity : BaseCanvasActivity() {
                     val evtX = evt.rawX
                     val evtY = evt.rawY
 
-                    analog.x = evtX - analog.width / 2
-                    analog.y = evtY - analog.height / 2
+                    v.animate()
+                            .x(evtX + analogCoords!![0])
+                            .y(evtY + analogCoords!![1])
+                            .setDuration(0)
+                            .start()
 
                     val relativeX = startCoords!![0] - evtX
                     val relativeY = startCoords!![1] - evtY
@@ -188,8 +193,11 @@ class CanvasActivity : BaseCanvasActivity() {
                     onMove(relativeX, relativeY)
                 }
                 MotionEvent.ACTION_UP -> {
-                    analog.x = analogStartCoords!![0]
-                    analog.y = analogStartCoords!![1]
+                    v.animate()
+                            .x(analogStartCoords!![0])
+                            .y(analogStartCoords!![1])
+                            .setDuration(0)
+                            .start()
 
                     if (sendCancel)
                         sendKey(0x03)

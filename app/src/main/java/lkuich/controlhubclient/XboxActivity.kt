@@ -43,7 +43,7 @@ class XboxActivity : BaseCanvasActivity() {
 
         val IP = intent.getStringExtra(HomeActivity.IP)
         xboxStream = XboxStream(createStub(IP))
-        analogStick(R.id.left_analog_inner, R.id.left_analog_outer, { x, y ->
+        analogStick(R.id.left_analog_inner, { x, y ->
             xboxStream?.leftThumbAxis(x.toShort(), y.toShort())
         }, {
             // Release
@@ -54,7 +54,7 @@ class XboxActivity : BaseCanvasActivity() {
             xboxStream?.setTrigger(Trigger.LEFT, Short.MAX_VALUE.toInt())
         })
 
-        analogStick(R.id.right_analog_inner, R.id.right_analog_outer, { x, y ->
+        analogStick(R.id.right_analog_inner, { x, y ->
             xboxStream?.rightThumbAxis(x.toShort(), y.toShort())
         }, {
             // Release
@@ -124,11 +124,11 @@ class XboxActivity : BaseCanvasActivity() {
     }
 
     // Replace bool with function
-    fun analogStick(innerAnalogId: Int, outerAnalogId: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, onRelease: () -> Unit, onPressure: () -> Unit) {
+    fun analogStick(innerAnalogId: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, onRelease: () -> Unit, onPressure: () -> Unit) {
         val analog = findViewById<ImageView>(innerAnalogId)
-        val analogOuter = findViewById<ImageView>(outerAnalogId)
 
         var analogStartCoords: FloatArray? = null
+        var analogCoords: FloatArray? = null
         var startCoords: FloatArray? = null
 
         var startTime: Long = 0
@@ -140,6 +140,7 @@ class XboxActivity : BaseCanvasActivity() {
             when (evt.action) {
                 MotionEvent.ACTION_DOWN -> {
                     analogStartCoords = floatArrayOf(analog.x, analog.y)
+                    analogCoords = floatArrayOf(v.x - evt.rawX, v.y - evt.rawY)
                     startCoords = floatArrayOf(evt.rawX, evt.rawY)
 
                     startTime = System.nanoTime()
@@ -157,8 +158,11 @@ class XboxActivity : BaseCanvasActivity() {
                         trigger = false
                     */
 
-                    analog.x = evtX - analog.width / 2
-                    analog.y = evtY - analog.height / 2
+                    v.animate()
+                            .x(evtX + analogCoords!![0])
+                            .y(evtY + analogCoords!![1])
+                            .setDuration(0)
+                            .start()
 
                     val relativeX = startCoords!![0] - evtX
                     val relativeY = startCoords!![1] - evtY
@@ -166,8 +170,11 @@ class XboxActivity : BaseCanvasActivity() {
                     onMove(relativeX, relativeY)
                 }
                 MotionEvent.ACTION_UP -> {
-                    analog.x = analogStartCoords!![0]
-                    analog.y = analogStartCoords!![1]
+                    v.animate()
+                            .x(analogStartCoords!![0])
+                            .y(analogStartCoords!![1])
+                            .setDuration(0)
+                            .start()
 
                     /*
                     endTime = System.nanoTime()
