@@ -1,19 +1,13 @@
 package lkuich.controlhubclient
 
-import android.content.pm.ActivityInfo
-import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.view.WindowManager
 import android.widget.ImageView
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import service.XboxButtonsGrpc
 import service.Services
 import android.support.v4.view.MotionEventCompat
-import android.widget.RelativeLayout
 
 class XboxActivity : BaseCanvasActivity() {
     private var xboxStream: XboxStream? = null

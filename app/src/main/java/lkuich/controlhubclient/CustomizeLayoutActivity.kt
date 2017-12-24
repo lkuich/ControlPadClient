@@ -142,7 +142,6 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
 }
 
 class CustomizeLayoutActivity : BaseCanvasActivity() {
-
     private var layouts: Array<String> = arrayOf()
     override fun onCreate() {
         layouts = app!!.getInstance()!!.layoutNames
@@ -150,6 +149,8 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
 
         // Set controls
         app?.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == selectedLayout }.controls.forEach { control ->
+            //val rootView = findViewById<>()
+
             val view = findViewById<RelativeLayout>(control.elm.id)
             control.enableMovement(view)
             control.onTap = { buttonMapDialog(control.elm.id ) }

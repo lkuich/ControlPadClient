@@ -3,6 +3,7 @@ package lkuich.controlhubclient
 import android.view.View
 import android.view.MotionEvent
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import service.StandardInputGrpc
@@ -161,6 +162,7 @@ class CanvasActivity : BaseCanvasActivity() {
 
     // Replace bool with function
     fun analogStick(id: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, onPressure: () -> Unit, sendCancel: Boolean) {
+        // val analog = findViewById<RelativeLayout>(R.id.mainContent).findViewWithTag<RelativeLayout>(tag)
         val analog = findViewById<ImageView>(id)
         var analogStartCoords: FloatArray? = null
         var analogCoords: FloatArray? = null

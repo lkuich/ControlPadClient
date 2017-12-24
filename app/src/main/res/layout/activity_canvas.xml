@@ -13,6 +13,7 @@
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/left_directional_pad"
+            android:tag="@string/left_directional_pad_tag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -46,6 +47,7 @@
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/right_directional_pad"
+            android:tag="@string/right_directional_pad_tag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">

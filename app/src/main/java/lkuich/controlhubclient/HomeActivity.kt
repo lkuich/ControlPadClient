@@ -1,6 +1,5 @@
 package lkuich.controlhubclient
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -28,8 +27,8 @@ import android.os.AsyncTask
 import android.widget.Button
 
 
-class BroadcastReceiver(val postExecute: (result: String) -> Unit): AsyncTask<Void, Void, String>() {
-    val PORT = 58384
+class BroadcastReceiver(private val postExecute: (result: String) -> Unit): AsyncTask<Void, Void, String>() {
+    private val PORT = 58384
 
     override fun doInBackground(vararg params: Void?): String {
         return startReceiving()
@@ -190,7 +189,7 @@ class ScreenSlidePageFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout containing a title and body text.
-        val rootView = inflater!!.inflate(R.layout.control_thumbnail, container, false) as ViewGroup
+        val rootView = inflater.inflate(R.layout.control_thumbnail, container, false) as ViewGroup
 
         var drawable = R.drawable.ic_xbox
         var title = ""
