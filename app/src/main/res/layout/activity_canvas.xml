@@ -79,6 +79,7 @@
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/buttons"
+            android:tag="@string/buttons_tag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -173,6 +174,7 @@
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/dpad"
+            android:tag="@string/dpad_tag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -215,6 +217,7 @@
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/left_shoulder"
+            android:tag="@string/left_shoulder_tag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -236,6 +239,7 @@
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/right_shoulder"
+            android:tag="@string/right_shoulder_tag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">

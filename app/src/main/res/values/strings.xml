@@ -10,6 +10,10 @@
     </string>
     <string name="left_directional_pad_tag">left_directional_pad</string>
     <string name="right_directional_pad_tag">right_directional_pad</string>
+    <string name="buttons_tag">buttons</string>
+    <string name="dpad_tag">dpad</string>
+    <string name="left_shoulder_tag">left_shoulder</string>
+    <string name="right_shoulder_tag">right_shoulder</string>
     <string name="title_activity_customize_layout">Customize Layout</string>
     <string name="web_client_id">1094341903373-cg761q6q7bngjvlc8221d84mie0mro2c.apps.googleusercontent.com</string>
     <string-array name="config_options">

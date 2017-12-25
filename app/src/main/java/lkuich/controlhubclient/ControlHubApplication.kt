@@ -9,7 +9,7 @@ import java.util.*
 
 
 class ControlLayout(val name: String, val controls: MutableList<ElementPosition>)
-data class FirebaseControls(val id: String, val key: MutableList<Int>, val x: Int, val y: Int) // Mapped by firebase
+data class FirebaseControls(val tag: String, val key: MutableList<Int>, val x: Float, val y: Float) // Mapped by firebase
 data class FirebaseLayout(val name: String, val controls: MutableList<FirebaseControls>) // Mapped by firebase
 
 class ControlHubApplication : Application() {
@@ -24,12 +24,12 @@ class ControlHubApplication : Application() {
     var homeLoaded: Boolean = false
     var firstRun: Boolean = true
     val defaultControls = mutableListOf(
-            FirebaseControls(R.id.left_directional_pad.toString(), mutableListOf(0x11), 402, 278), // ctrl
-            FirebaseControls(R.id.right_directional_pad.toString(), mutableListOf(0x56), 1407, 592), // v
-            FirebaseControls(R.id.buttons.toString(), mutableListOf(0x20, 0x11, 0x32, 0x52), 1125, 182), // A, B, Y, X
-            FirebaseControls(R.id.dpad.toString(), mutableListOf(0x03), 129, 663),
-            FirebaseControls(R.id.left_shoulder.toString(), mutableListOf(0x03, 0x02), 12, 20), // Left Bumper / Left Trigger
-            FirebaseControls(R.id.right_shoulder.toString(), mutableListOf(0x03, 0x01), 1640, 20) // Right Bumper / Right Trigger
+            FirebaseControls("left_directional_pad", mutableListOf(0x11), 402f, 278f), // ctrl
+            FirebaseControls("right_directional_pad", mutableListOf(0x56), 1407f, 592f), // v
+            FirebaseControls("buttons", mutableListOf(0x20, 0x11, 0x32, 0x52), 1125f, 182f), // A, B, Y, X
+            FirebaseControls("dpad", mutableListOf(0x03), 129f, 663f),
+            FirebaseControls("left_shoulder", mutableListOf(0x03, 0x02), 12f, 20f), // Left Bumper / Left Trigger
+            FirebaseControls("right_shoulder", mutableListOf(0x03, 0x01), 1640f, 20f) // Right Bumper / Right Trigger
     )
 
     fun getInstance(): ControlHubApplication? {

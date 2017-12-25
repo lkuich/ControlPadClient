@@ -109,10 +109,10 @@ class LoginActivity : Activity() {
                         it.child("controls").children.forEach { config ->
                             config.value
                             controls.add(FirebaseControls(
-                                    config.child("id").value.toString(),
+                                    config.child("tag").value.toString(),
                                     config.child("key").value as MutableList<Int>,
-                                    config.child("x").value.toString().toInt(),
-                                    config.child("y").value.toString().toInt()
+                                    config.child("x").value.toString().toFloat(),
+                                    config.child("y").value.toString().toFloat()
                             ))
                         }
                         val firebaseLayout = FirebaseLayout(name, controls)

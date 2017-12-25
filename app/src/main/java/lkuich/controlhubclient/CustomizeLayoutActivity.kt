@@ -88,8 +88,10 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
                 // Iterate through cached layout
                 val elements = mutableListOf<ElementPosition>()
                 it.controls.forEach { control ->
+                    val rootView = findViewById<RelativeLayout>(R.id.mainContent)
+
                     // Go through each control
-                    val element = findViewById<RelativeLayout>(control.id.toInt()) // get elm
+                    val element = rootView.findViewWithTag<RelativeLayout>(control.tag) // get elm
                     val ctrl = ElementPosition(element, control.key, { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) })
                     ctrl.setPos(control.x.toFloat(), control.y.toFloat())
                     ctrl.move(element)
@@ -108,7 +110,7 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
         val selectedLayout = app?.getInstance()?.selectedLayout
         app?.getInstance()?.layouts!!
                 .first { e -> e.name == selectedLayout }
-                .controls.first { control -> control.elm.id == elm.id }.setPos(rawX , rawY)
+                .controls.first { control -> control.elm.tag == elm.tag }.setPos(rawX , rawY)
 
         // Save it to DB
         app?.getInstance()?.firebaseLayouts!!.children.forEach { layout ->
@@ -116,7 +118,7 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
             val correctLayout = name == app?.getInstance()?.selectedLayout
             if (correctLayout) {
                 layout.child("controls").children.forEach { config ->
-                    if (config.child("id").value.toString().toInt() == elm.id) {
+                    if (config.child("tag").value.toString() == elm.tag) {
                         val controls = app?.getInstance()?.database?.child("layouts")?.child(layout.key)?.child("controls")?.child(config.key)!!
                         controls.child("x")?.setValue(rawX .toString())
                         controls.child("y")?.setValue(rawY.toString())
@@ -149,8 +151,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
 
         // Set controls
         app?.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == selectedLayout }.controls.forEach { control ->
-            //val rootView = findViewById<>()
-
+            // val rootView = findViewById<RelativeLayout>(R.id.mainContent); val view = rootView.findViewWithTag<RelativeLayout>(control.elm.tag)
             val view = findViewById<RelativeLayout>(control.elm.id)
             control.enableMovement(view)
             control.onTap = { buttonMapDialog(control.elm.id ) }
