@@ -87,17 +87,17 @@ class LoginActivity : Activity() {
                 val selectedLayout: Any? = dataSnapshot.child("selectedLayout").value
                 if (selectedLayout == null) {
                     app?.getInstance()!!.firstRun = true
-
-                    // No layout exists, create it!
-                    app?.getInstance()!!.database?.child("selectedLayout")?.setValue(
-                            app?.getInstance()!!.selectedLayout)
+                    app?.getInstance()!!.database?.child("firstRun")?.setValue(app?.getInstance()!!.firstRun)
 
                     val layouts = mutableListOf<FirebaseLayout>()
                     app?.getInstance()!!.layoutNames.forEach {
                         layouts.add(FirebaseLayout(it, app?.getInstance()!!.defaultControls))
                     }
                     app?.getInstance()!!.database?.child("layouts")?.setValue(layouts)
-                    app?.getInstance()!!.database?.child("firstRun")?.setValue(app?.getInstance()!!.firstRun)
+
+                    // No layout exists, create it!
+                    app?.getInstance()!!.database?.child("selectedLayout")?.setValue(
+                            app?.getInstance()!!.selectedLayout)
                 } else {
                     app?.getInstance()!!.firstRun = dataSnapshot.child("firstRun").value as Boolean
                     app?.getInstance()?.selectedLayout = selectedLayout.toString()

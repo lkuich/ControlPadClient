@@ -5,15 +5,12 @@ import android.os.Bundle
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowManager
 import android.widget.*
 import android.widget.RelativeLayout
 import android.content.Context
 import android.os.Vibrator
 import android.support.v4.view.MotionEventCompat
-import android.view.Gravity
+import android.view.*
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.github.amlcurran.showcaseview.targets.ViewTarget
@@ -93,7 +90,7 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
                     // Go through each control
                     val element = rootView.findViewWithTag<RelativeLayout>(control.tag) // get elm
                     val ctrl = ElementPosition(element, control.key, { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) })
-                    ctrl.setPos(control.x.toFloat(), control.y.toFloat())
+                    ctrl.setPos(control.x, control.y)
                     ctrl.move(element)
 
                     elements.add(ctrl)
