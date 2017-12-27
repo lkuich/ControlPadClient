@@ -15,6 +15,7 @@
     <string name="dpad_tag">dpad</string>
     <string name="left_shoulder_tag">left_shoulder</string>
     <string name="right_shoulder_tag">right_shoulder</string>
+    <string name="menu_buttons_tag">menu_buttons</string>
     <string name="title_activity_customize_layout">Customize Layout</string>
     <string name="web_client_id">1094341903373-cg761q6q7bngjvlc8221d84mie0mro2c.apps.googleusercontent.com</string>
     <string-array name="config_options_live">
@@ -22,6 +23,7 @@
     </string-array>
     <string-array name="config_options">
         <item>Select Layout</item>
+        <item>Reset</item>
         <item>Done</item>
     </string-array>
 </resources>

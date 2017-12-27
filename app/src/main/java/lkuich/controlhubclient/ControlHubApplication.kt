@@ -37,7 +37,7 @@ class ControlHubApplication : Application() {
             FirebaseControls("buttons", mutableListOf(" ", "left,ctrl", "2", "r"), 1125f, 182f), // A, B, Y, X
             FirebaseControls("dpad", mutableListOf("down", "right", "up", "left"), 129f, 663f),
             FirebaseControls("left_shoulder", mutableListOf("cancel", "right,click"), 12f, 20f), // Left Bumper / Left Trigger
-            FirebaseControls("right_shoulder", mutableListOf("cancel", "left,click"), 1640f, 20f) // Right Bumper / Right Trigger
+            FirebaseControls("right_shoulder", mutableListOf("cancel", "left,click"), 1560f, 20f) // Right Bumper / Right Trigger
     )
 
     fun getInstance(): ControlHubApplication? {
@@ -63,15 +63,12 @@ class ControlHubApplication : Application() {
 
     fun checkNetwork(activity: Activity) {
         if (!isWifiConnected()) {
-            val builder: AlertDialog.Builder =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) AlertDialog.Builder(activity, android.R.style.Theme_Material_Dialog_Alert)
-                    else AlertDialog.Builder(activity)
+            val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
             builder.setTitle("Error")
                     .setMessage(getString(R.string.no_wifi_error))
                     .setNeutralButton(android.R.string.ok, { dialog, which ->
                         activity.finish()
                     })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
                     .show()
         }
     }

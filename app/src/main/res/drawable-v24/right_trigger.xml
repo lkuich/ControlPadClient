@@ -9,9 +9,6 @@
     <solid
         android:color="@color/grey" />
 
-    <stroke
-        android:width="3dp" />
-
     <size
         android:width="130dp"
         android:height="65dp" />

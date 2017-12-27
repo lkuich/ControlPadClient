@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.*
 import android.widget.RelativeLayout
 import android.content.Context
+import android.os.Build
 import android.os.Vibrator
 import android.support.v4.view.MotionEventCompat
 import android.view.*
@@ -164,7 +165,10 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
                 0 -> { // Select config
                     layoutSelection()
                 }
-                1 -> { // Done
+                1 -> {
+                    resetLayout()
+                }
+                2 -> { // Done
                     finish()
                 }
             }
@@ -299,6 +303,30 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
 
         // Build and show
         builder.create().show()
+    }
+
+    fun resetLayout() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle("Warning")
+            .setMessage("Are you sure you would like to reset " + app?.getInstance()!!.selectedLayout + "?")
+            .setPositiveButton(android.R.string.yes, { dialog, which ->
+                app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == app!!.getInstance()!!.selectedLayout }.controls.forEach { control ->
+                    val ctrl = app!!.getInstance()!!.defaultControls.first { it.tag == control.elm.tag }
+                    control.setPos(ctrl.x, ctrl.y)
+
+                    control.elm.x = ctrl.x
+                    control.elm.y = ctrl.y
+                    onElmUp(control.elm, ctrl.x, ctrl.y)
+                }
+
+                mDrawerLayout?.closeDrawers()
+                fullscreen()
+            })
+            .setNeutralButton(android.R.string.no, { dialog, which ->
+                mDrawerLayout?.closeDrawers()
+                fullscreen()
+            })
+            .show()
     }
 
     fun layoutSelection() {
