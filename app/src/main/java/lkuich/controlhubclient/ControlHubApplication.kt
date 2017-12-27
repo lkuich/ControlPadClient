@@ -1,7 +1,15 @@
 package lkuich.controlhubclient
 
+import android.app.Activity
 import android.app.Application
+import android.content.Context
+import android.content.IntentFilter
 import android.content.res.Configuration
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
+import android.net.wifi.WifiManager
+import android.os.Build
+import android.support.v7.app.AlertDialog
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -9,7 +17,7 @@ import java.util.*
 
 
 class ControlLayout(val name: String, val controls: MutableList<ElementPosition>)
-data class FirebaseControls(val tag: String, val key: MutableList<Int>, val x: Float, val y: Float) // Mapped by firebase
+data class FirebaseControls(val tag: String, val key: MutableList<String>, val x: Float, val y: Float) // Mapped by firebase
 data class FirebaseLayout(val name: String, val controls: MutableList<FirebaseControls>) // Mapped by firebase
 
 class ControlHubApplication : Application() {
@@ -24,12 +32,12 @@ class ControlHubApplication : Application() {
     var homeLoaded: Boolean = false
     var firstRun: Boolean = true
     val defaultControls = mutableListOf(
-            FirebaseControls("left_directional_pad", mutableListOf(0x11), 402f, 278f), // ctrl
-            FirebaseControls("right_directional_pad", mutableListOf(0x56), 1407f, 592f), // v
-            FirebaseControls("buttons", mutableListOf(0x20, 0x11, 0x32, 0x52), 1125f, 182f), // A, B, Y, X
-            FirebaseControls("dpad", mutableListOf(0x03), 129f, 663f),
-            FirebaseControls("left_shoulder", mutableListOf(0x03, 0x02), 12f, 20f), // Left Bumper / Left Trigger
-            FirebaseControls("right_shoulder", mutableListOf(0x03, 0x01), 1640f, 20f) // Right Bumper / Right Trigger
+            FirebaseControls("left_directional_pad", mutableListOf("ctrl"), 402f, 278f), // ctrl
+            FirebaseControls("right_directional_pad", mutableListOf("v"), 1407f, 592f), // v
+            FirebaseControls("buttons", mutableListOf(" ", "left,ctrl", "2", "r"), 1125f, 182f), // A, B, Y, X
+            FirebaseControls("dpad", mutableListOf("down", "right", "up", "left"), 129f, 663f),
+            FirebaseControls("left_shoulder", mutableListOf("cancel", "right,click"), 12f, 20f), // Left Bumper / Left Trigger
+            FirebaseControls("right_shoulder", mutableListOf("cancel", "left,click"), 1640f, 20f) // Right Bumper / Right Trigger
     )
 
     fun getInstance(): ControlHubApplication? {
@@ -51,5 +59,40 @@ class ControlHubApplication : Application() {
 
     override fun onTerminate() {
         super.onTerminate()
+    }
+
+    fun checkNetwork(activity: Activity) {
+        if (!isWifiConnected()) {
+            val builder: AlertDialog.Builder =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) AlertDialog.Builder(activity, android.R.style.Theme_Material_Dialog_Alert)
+                    else AlertDialog.Builder(activity)
+            builder.setTitle("Error")
+                    .setMessage(getString(R.string.no_wifi_error))
+                    .setNeutralButton(android.R.string.ok, { dialog, which ->
+                        activity.finish()
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
+        }
+    }
+
+    fun isWifiConnected(): Boolean {
+        val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val networkInfo: NetworkInfo
+        if (wifi.isWifiEnabled) {
+            val connectivityManager = applicationContext.getSystemService(
+                    Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
+        } else
+            return false
+
+        return networkInfo.isConnected
+    }
+
+    fun isUsbConnected(): Boolean {
+        val intent = applicationContext.registerReceiver(null, IntentFilter(
+                "android.hardware.usb.action.USB_STATE")
+        )
+        return intent != null && intent.extras!!.getBoolean("connected")
     }
 }

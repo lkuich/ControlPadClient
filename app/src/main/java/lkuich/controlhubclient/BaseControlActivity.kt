@@ -83,8 +83,8 @@ abstract class BaseControlActivity(controlType: ControlType) : BaseCanvasActivit
         button(R.id.select, 0x0020)
         */
 
-        trigger(R.id.lt, Trigger.LEFT)
-        trigger(R.id.rt, Trigger.RIGHT)
+        left_trigger(R.id.lt, Trigger.LEFT)
+        left_trigger(R.id.rt, Trigger.RIGHT)
 
         // Send start config to server
         xboxStream?.pressButton(0x9001)
@@ -98,9 +98,9 @@ abstract class BaseControlActivity(controlType: ControlType) : BaseCanvasActivit
         return XboxButtonsGrpc.newStub(channel)
     }
 
-    fun trigger(id: Int, side: Trigger) {
-        val trigger = findViewById<ImageView>(id)
-        trigger.setOnTouchListener(
+    fun left_trigger(id: Int, side: Trigger) {
+        val left_trigger = findViewById<ImageView>(id)
+        left_trigger.setOnTouchListener(
                 View.OnTouchListener { v, evt ->
                     when (evt.action) {
                         MotionEvent.ACTION_DOWN -> {
@@ -140,7 +140,7 @@ abstract class BaseControlActivity(controlType: ControlType) : BaseCanvasActivit
 
         var startTime: Long = 0
         var endTime: Long = 0
-        var trigger = true
+        var left_trigger = true
 
         analog.setOnTouchListener(
                 View.OnTouchListener { v, evt ->
@@ -150,7 +150,7 @@ abstract class BaseControlActivity(controlType: ControlType) : BaseCanvasActivit
                             startCoords = floatArrayOf(evt.rawX, evt.rawY)
 
                             startTime = System.nanoTime()
-                            trigger = true
+                            left_trigger = true
                         }
                         MotionEvent.ACTION_MOVE -> {
                             if (evt.pressure > 1.3)
@@ -161,7 +161,7 @@ abstract class BaseControlActivity(controlType: ControlType) : BaseCanvasActivit
 
                             /*
                             if (evtX > 0 || evtY > 0)
-                                trigger = false
+                                left_trigger = false
                             */
 
                             analog.x = evtX - analog.width / 2
@@ -287,10 +287,10 @@ private class XboxStream(stub: XboxButtonsGrpc.XboxButtonsStub) : GrpcStream() {
         }
     }
 
-    fun setTrigger(trigger: Trigger, pressure: Int) {
+    fun setTrigger(left_trigger: Trigger, pressure: Int) {
         try {
             val request = Services.XboxTrigger.newBuilder().setPressure(pressure).build()
-            if (trigger == Trigger.LEFT)
+            if (left_trigger == Trigger.LEFT)
                 xboxLeftTriggerRequestObserver?.onNext(request)
             else
                 xboxRightTriggerRequestObserver?.onNext(request)

@@ -1,6 +1,5 @@
 package lkuich.controlhubclient
 
-import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
@@ -14,10 +13,6 @@ import android.support.v4.view.PagerAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import android.content.Intent
-import android.content.IntentFilter
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
-import android.net.wifi.WifiManager
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -118,7 +113,7 @@ class HomeActivity : FragmentActivity() {
                 val btn = findViewById<Button>(R.id.btnConnect)
                 btn.isEnabled = true
                 btn.setOnClickListener({
-                    val activity = if (selectedConfig == 0) XboxActivity::class.java else CanvasActivity::class.java
+                    val activity = if (selectedConfig == 0) XboxActivity::class.java else StandardInputActivity::class.java
                     val intent = Intent(applicationContext, activity)
                     intent.putExtra(IP, result)
                     startActivity(intent)
@@ -128,26 +123,6 @@ class HomeActivity : FragmentActivity() {
                 (findViewById<TextView>(R.id.btnConnect)).text = "Connect (" + result + ")"
             }
         }).execute()
-    }
-
-    fun isWifiConnected(): Boolean {
-        val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val networkInfo: NetworkInfo
-        if (wifi.isWifiEnabled) {
-            val connectivityManager = applicationContext.getSystemService(
-                    Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
-        } else
-            return false
-
-        return networkInfo.isConnected
-    }
-
-    fun isUsbConnected(): Boolean {
-        val intent = applicationContext.registerReceiver(null, IntentFilter(
-                "android.hardware.usb.action.USB_STATE")
-        )
-        return intent != null && intent.extras!!.getBoolean("connected")
     }
 
     override fun onBackPressed() {

@@ -65,6 +65,12 @@ class XboxActivity : BaseCanvasActivity() {
         button(R.id.y_button, 0x8000)
         button(R.id.lb, 0x0100)
         button(R.id.rb, 0x0200)
+
+        button(R.id.left_button, 0x0004)
+        button(R.id.right_button, 0x0008)
+        button(R.id.up_button, 0x0001)
+        button(R.id.down_button, 0x0002)
+
         /*
         button(R.id.start, 0x0010)
         button(R.id.select, 0x0020)
@@ -79,7 +85,7 @@ class XboxActivity : BaseCanvasActivity() {
 
     fun createStub(ip: String): XboxButtonsGrpc.XboxButtonsStub {
         val host: String = ip
-        val port: Int = 50051
+        val port: Int = getString(R.string.grpc_port).toInt()
 
         val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
         return XboxButtonsGrpc.newStub(channel)
@@ -149,7 +155,7 @@ class XboxActivity : BaseCanvasActivity() {
 
                     /*
                     if (evtX > 0 || evtY > 0)
-                        trigger = false
+                        left_trigger = false
                     */
 
                     v.animate()

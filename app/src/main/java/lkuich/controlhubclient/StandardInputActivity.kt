@@ -1,9 +1,13 @@
 package lkuich.controlhubclient
 
+import android.support.v4.widget.DrawerLayout
+import android.view.KeyEvent
 import android.view.View
 import android.view.MotionEvent
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ImageView
-import android.widget.RelativeLayout
+import android.widget.ListView
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import service.StandardInputGrpc
@@ -81,12 +85,23 @@ class Axis (var x: Float, var y: Float) {
     }
 }
 
-class CanvasActivity : BaseCanvasActivity() {
+class StandardInputActivity : BaseCanvasActivity() {
     private var mouseStream: MouseStream? = null
     private var keyboardStream: KeyboardStream? = null
 
     override fun onCreate() {
         app?.getInstance()?.layouts?.first { controlLayout -> controlLayout.name == app!!.getInstance()?.selectedLayout }?.controls?.forEach { control ->
+            val drawerItems = resources.getStringArray(R.array.config_options_live)
+            val mDrawerList = findViewById<ListView>(R.id.left_drawer)
+            mDrawerList?.adapter = ArrayAdapter<String>(this, R.layout.drawer_list_item, drawerItems)
+            mDrawerList?.setOnItemClickListener({ _: AdapterView<*>, _: View, position: Int, _: Long ->
+                when(position) {
+                    0 -> { // Done
+                        finish()
+                    }
+                }
+            })
+
             // Move controls into position
             control.move(findViewById(control.elm.id))
 
@@ -107,23 +122,31 @@ class CanvasActivity : BaseCanvasActivity() {
                     button(R.id.rt, control.keys[1])
                 }
                 R.id.left_directional_pad -> {
+                    val parsedKey: Int = parseKey(control.keys[0])
+
                     analogStick(R.id.left_analog_inner, { x, y ->
                         val axis = Axis(x, y)
 
-                        // val sensitivity = 1
                         val keys = axis.greatestKey()
                         sendKey(keys[0], if (keys.size > 1) keys[1] else 0)
                     }, {
-                        sendKey(control.keys[0])
+                        sendKey(parsedKey)
                     }, true)
                 }
                 R.id.right_directional_pad -> {
+                    val parsedKey: Int = parseKey(control.keys[0])
+
                     analogStick(R.id.right_analog_inner, {x, y ->
-                        // Log.v("mouse:", x.toString() + "," + y.toString())
                         sendMouse(x.toInt(), y.toInt())
                     }, {
-                        sendKey(control.keys[0])
+                        sendKey(parsedKey)
                     }, false)
+                }
+                R.id.dpad -> {
+                    button(R.id.left_button, "left")
+                    button(R.id.right_button, "right")
+                    button(R.id.up_button, "up")
+                    button(R.id.down_button, "down")
                 }
             }
         }
@@ -136,21 +159,84 @@ class CanvasActivity : BaseCanvasActivity() {
         // Send disconnect
     }
 
+    fun singleKeyMap(key: String): Int = when (key) {
+        "a" -> JKeyEvent.VK_A; "b" ->  JKeyEvent.VK_B
+        "c" -> JKeyEvent.VK_C; "d" -> JKeyEvent.VK_D
+        "e" -> JKeyEvent.VK_E; "f" -> JKeyEvent.VK_F
+        "g" -> JKeyEvent.VK_G; "h" -> JKeyEvent.VK_H
+        "i" -> JKeyEvent.VK_I; "j" -> JKeyEvent.VK_J
+        "k" -> JKeyEvent.VK_K; "l" -> JKeyEvent.VK_L
+        "m" -> JKeyEvent.VK_M; "n" -> JKeyEvent.VK_N
+        "o" -> JKeyEvent.VK_O; "p" -> JKeyEvent.VK_P
+        "q" -> JKeyEvent.VK_Q; "r" -> JKeyEvent.VK_R
+        "s" -> JKeyEvent.VK_S; "t" -> JKeyEvent.VK_T
+        "u" -> JKeyEvent.VK_U; "v" -> JKeyEvent.VK_V
+        "w" -> JKeyEvent.VK_W; "x" -> JKeyEvent.VK_X
+        "y" -> JKeyEvent.VK_Y; "z" -> JKeyEvent.VK_Z
+        "1" -> JKeyEvent.VK_1; "2" -> JKeyEvent.VK_2
+        "3" -> JKeyEvent.VK_3; "4" -> JKeyEvent.VK_4
+        "5" -> JKeyEvent.VK_5; "6" -> JKeyEvent.VK_6
+        "7" -> JKeyEvent.VK_7; "8" -> JKeyEvent.VK_8
+        "9" -> JKeyEvent.VK_9; "0" -> JKeyEvent.VK_0
+        "left" -> JKeyEvent.VK_LEFT; "right" -> JKeyEvent.VK_RIGHT
+        "up" -> JKeyEvent.VK_UP; "down" -> JKeyEvent.VK_DOWN
+        "shift" -> JKeyEvent.VK_SHIFT
+        "ctrl" -> JKeyEvent.VK_CONTROL
+        "alt" -> JKeyEvent.VK_ALT
+        else -> JKeyEvent.VK_UNDEFINED
+    }
+
+    fun parseKey(k: String): Int {
+        if (k.isEmpty())
+            throw Exception("Key cannot be empty")
+        val key = k.toLowerCase()
+
+        val split = key.split(',')
+        when (split.size) {
+            1 -> { // There's no comma, no side spec
+                // No split, just treat as single char
+                val char = key[0].toString() // make sure we have the 1 char
+                return singleKeyMap(char)
+            }
+            2 -> {
+                val side = split[0]
+                val value = split[1]
+
+                if (side == "left") {
+                    when (value) {
+                        "ctrl" -> return JKeyEvent.VK_CONTROL_LEFT
+                        "alt" -> return JKeyEvent.VK_ALT_LEFT
+                        "click" -> return JKeyEvent.LBUTTON
+                    }
+                } else { // Right
+                    when (value) {
+                        "ctrl" -> return JKeyEvent.VK_CONTROL_RIGHT
+                        "alt" -> return JKeyEvent.VK_ALT_RIGHT
+                        "click" -> return JKeyEvent.RBUTTON
+                    }
+                }
+            }
+        }
+        return JKeyEvent.VK_UNDEFINED
+    }
+
     fun createStub(ip: String): StandardInputGrpc.StandardInputStub {
         val host: String = ip
-        val port: Int = 50051
+        val port: Int = getString(R.string.grpc_port).toInt()
 
         val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
         return StandardInputGrpc.newStub(channel)
     }
 
-    fun button(id: Int, key: Int) {
+    fun button(id: Int, key: String) {
+        val parsedKey: Int = parseKey(key)
+
         val button = findViewById<View>(id)
         button.setOnTouchListener(
             View.OnTouchListener { v, evt ->
                  when (evt.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        sendKey(key)
+                        sendKey(parsedKey)
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         sendKey(0x03)
@@ -162,7 +248,6 @@ class CanvasActivity : BaseCanvasActivity() {
 
     // Replace bool with function
     fun analogStick(id: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, onPressure: () -> Unit, sendCancel: Boolean) {
-        // val analog = findViewById<RelativeLayout>(R.id.mainContent).findViewWithTag<RelativeLayout>(tag)
         val analog = findViewById<ImageView>(id)
         var analogStartCoords: FloatArray? = null
         var analogCoords: FloatArray? = null

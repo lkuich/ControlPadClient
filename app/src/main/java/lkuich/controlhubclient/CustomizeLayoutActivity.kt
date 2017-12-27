@@ -15,7 +15,7 @@ import com.github.amlcurran.showcaseview.OnShowcaseEventListener
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.github.amlcurran.showcaseview.targets.ViewTarget
 
-class ElementPosition(val elm: RelativeLayout, var keys: MutableList<Int>, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit) {
+class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit) {
     var x: Float = elm.x
     var y: Float = elm.y
 
@@ -263,24 +263,24 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
 
         when (id) {
             R.id.left_shoulder -> {
-                context.findViewById<EditText>(R.id.left_bumper_map).setText(keys[0].toString())
-                context.findViewById<EditText>(R.id.left_trigger_map).setText(keys[1].toString())
+                context.findViewById<EditText>(R.id.left_bumper_map).setText(keys[0])
+                context.findViewById<EditText>(R.id.left_trigger_map).setText(keys[1])
             }
             R.id.right_shoulder -> {
-                context.findViewById<EditText>(R.id.right_bumper_map).setText(keys[0].toString())
-                context.findViewById<EditText>(R.id.right_trigger_map).setText(keys[1].toString())
+                context.findViewById<EditText>(R.id.right_bumper_map).setText(keys[0])
+                context.findViewById<EditText>(R.id.right_trigger_map).setText(keys[1])
             }
             R.id.left_directional_pad -> {
-                context.findViewById<EditText>(R.id.thumbstick_key).setText(keys[0].toString())
+                context.findViewById<EditText>(R.id.thumbstick_key).setText(keys[0])
             }
             R.id.right_directional_pad -> {
-                context.findViewById<EditText>(R.id.thumbstick_key).setText(keys[0].toString())
+                context.findViewById<EditText>(R.id.thumbstick_key).setText(keys[0])
             }
             R.id.buttons -> {
-                context.findViewById<EditText>(R.id.a_map).setText(keys[0].toString())
-                context.findViewById<EditText>(R.id.b_map).setText(keys[1].toString())
-                context.findViewById<EditText>(R.id.y_map).setText(keys[2].toString())
-                context.findViewById<EditText>(R.id.x_map).setText(keys[3].toString())
+                context.findViewById<EditText>(R.id.a_map).setText(keys[0])
+                context.findViewById<EditText>(R.id.b_map).setText(keys[1])
+                context.findViewById<EditText>(R.id.y_map).setText(keys[2])
+                context.findViewById<EditText>(R.id.x_map).setText(keys[3])
             }
         }
 

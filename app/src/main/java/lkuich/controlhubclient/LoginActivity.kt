@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.TextView
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -15,6 +14,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.*
 import com.google.firebase.database.*
+
 
 class LoginActivity : Activity() {
     private val RC_SIGN_IN = 9001
@@ -27,6 +27,8 @@ class LoginActivity : Activity() {
         setContentView(R.layout.activity_login)
 
         app = applicationContext as ControlHubApplication
+        app?.getInstance()!!.checkNetwork(this)
+
         mAuth = FirebaseAuth.getInstance()
 
         signinButton = findViewById(R.id.sign_in_button)
@@ -110,7 +112,7 @@ class LoginActivity : Activity() {
                             config.value
                             controls.add(FirebaseControls(
                                     config.child("tag").value.toString(),
-                                    config.child("key").value as MutableList<Int>,
+                                    config.child("key").value as MutableList<String>,
                                     config.child("x").value.toString().toFloat(),
                                     config.child("y").value.toString().toFloat()
                             ))

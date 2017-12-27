@@ -21,6 +21,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="12dp"
             android:layout_toEndOf="@+id/a_lbl"
+            android:maxLength="1"
             android:hint="A" />
 
         <TextView
@@ -50,6 +51,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="12dp"
             android:layout_toEndOf="@+id/b_lbl"
+            android:maxLength="1"
             android:hint="B" />
 
         <TextView
@@ -79,6 +81,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="12dp"
             android:layout_toEndOf="@+id/y_lbl"
+            android:maxLength="1"
             android:hint="Y" />
 
         <TextView
@@ -107,6 +110,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="12dp"
             android:layout_toEndOf="@+id/x_lbl"
+            android:maxLength="1"
             android:hint="X" />
 
         <TextView

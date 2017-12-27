@@ -4,13 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000"
-    tools:context=".CanvasActivity">
+    tools:context=".StandardInputActivity">
 
     <RelativeLayout
         android:id="@+id/mainContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
+        
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/left_directional_pad"
             android:tag="@string/left_directional_pad_tag"
@@ -226,7 +226,7 @@
                 android:id="@+id/lt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/trigger" />
+                android:src="@drawable/left_trigger" />
 
             <ImageView
                 android:id="@+id/lb"
@@ -234,7 +234,27 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
                 android:layout_below="@+id/lt"
-                android:src="@drawable/shoulder" />
+                android:src="@drawable/left_shoulder" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_centerHorizontal="true"
+                android:text="LT"
+                android:textColor="#000"
+                android:textSize="30dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="78dp"
+                android:layout_centerHorizontal="true"
+                android:text="LB"
+                android:textColor="#000"
+                android:textSize="30dp"
+                android:textStyle="bold" />
         </RelativeLayout>
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -248,7 +268,7 @@
                 android:id="@+id/rt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/trigger" />
+                android:src="@drawable/right_trigger" />
 
             <ImageView
                 android:id="@+id/rb"
@@ -256,8 +276,27 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/rt"
                 android:paddingTop="10dp"
-                android:src="@drawable/shoulder" />
+                android:src="@drawable/right_shoulder" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_centerHorizontal="true"
+                android:text="RT"
+                android:textColor="#000"
+                android:textSize="30dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="78dp"
+                android:layout_centerHorizontal="true"
+                android:text="RB"
+                android:textColor="#000"
+                android:textSize="30dp"
+                android:textStyle="bold" />
         </RelativeLayout>
     </RelativeLayout>
 
