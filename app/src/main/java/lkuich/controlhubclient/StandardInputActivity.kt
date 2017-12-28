@@ -142,14 +142,18 @@ class StandardInputActivity : BaseCanvasActivity() {
                         sendKey(parsedKey)
                     }, false)
                 }
-                R.id.dpad -> {
-                    button(R.id.left_button, "left")
-                    button(R.id.right_button, "right")
-                    button(R.id.up_button, "up")
-                    button(R.id.down_button, "down")
+                R.id.menu_buttons -> {
+                    button(R.id.select, control.keys[0])
+                    button(R.id.start, control.keys[1])
                 }
             }
         }
+
+        // Set dpad
+        button(R.id.left_button, "left")
+        button(R.id.right_button, "right")
+        button(R.id.up_button, "up")
+        button(R.id.down_button, "down")
 
         val IP = intent.getStringExtra(HomeActivity.IP)
         val stub = createStub(IP)
@@ -183,6 +187,8 @@ class StandardInputActivity : BaseCanvasActivity() {
         "shift" -> JKeyEvent.VK_SHIFT
         "ctrl" -> JKeyEvent.VK_CONTROL
         "alt" -> JKeyEvent.VK_ALT
+        "esc" -> JKeyEvent.VK_ESCAPE
+        "tab" -> JKeyEvent.VK_TAB
         else -> JKeyEvent.VK_UNDEFINED
     }
 

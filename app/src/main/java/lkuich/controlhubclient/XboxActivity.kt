@@ -71,10 +71,8 @@ class XboxActivity : BaseCanvasActivity() {
         button(R.id.up_button, 0x0001)
         button(R.id.down_button, 0x0002)
 
-        /*
         button(R.id.start, 0x0010)
         button(R.id.select, 0x0020)
-        */
 
         trigger(R.id.lt, Trigger.LEFT)
         trigger(R.id.rt, Trigger.RIGHT)

@@ -31,13 +31,14 @@ class ControlHubApplication : Application() {
     var firebaseLayouts: DataSnapshot? = null
     var homeLoaded: Boolean = false
     var firstRun: Boolean = true
-    val defaultControls = mutableListOf(
-            FirebaseControls("left_directional_pad", mutableListOf("ctrl"), 402f, 278f), // ctrl
-            FirebaseControls("right_directional_pad", mutableListOf("v"), 1407f, 592f), // v
+    val defaultControls = mutableListOf( //TODO: Use strings
+            FirebaseControls("left_directional_pad", mutableListOf("shift"), 402f, 278f), // ctrl
+            FirebaseControls("right_directional_pad", mutableListOf("ctrl"), 1407f, 592f), // v
             FirebaseControls("buttons", mutableListOf(" ", "left,ctrl", "2", "r"), 1125f, 182f), // A, B, Y, X
             FirebaseControls("dpad", mutableListOf("down", "right", "up", "left"), 129f, 663f),
             FirebaseControls("left_shoulder", mutableListOf("cancel", "right,click"), 12f, 20f), // Left Bumper / Left Trigger
-            FirebaseControls("right_shoulder", mutableListOf("cancel", "left,click"), 1560f, 20f) // Right Bumper / Right Trigger
+            FirebaseControls("right_shoulder", mutableListOf("cancel", "left,click"), 1560f, 20f), // Right Bumper / Right Trigger
+            FirebaseControls("menu_buttons", mutableListOf("tab", "esc"), 775f, 950f) // Select / Start
     )
 
     fun getInstance(): ControlHubApplication? {
