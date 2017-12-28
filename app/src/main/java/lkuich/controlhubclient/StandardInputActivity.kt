@@ -201,8 +201,7 @@ class StandardInputActivity : BaseCanvasActivity() {
         when (split.size) {
             1 -> { // There's no comma, no side spec
                 // No split, just treat as single char
-                val char = key[0].toString() // make sure we have the 1 char
-                return singleKeyMap(char)
+                return singleKeyMap(key)
             }
             2 -> {
                 val side = split[0]
