@@ -4,10 +4,7 @@ import android.support.v4.widget.DrawerLayout
 import android.view.KeyEvent
 import android.view.View
 import android.view.MotionEvent
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.ImageView
-import android.widget.ListView
+import android.widget.*
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import service.StandardInputGrpc
@@ -253,7 +250,7 @@ class StandardInputActivity : BaseCanvasActivity() {
 
     // Replace bool with function
     fun analogStick(id: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, onPressure: () -> Unit, sendCancel: Boolean) {
-        val analog = findViewById<ImageView>(id)
+        val analog = findViewById<RelativeLayout>(id)
         var analogStartCoords: FloatArray? = null
         var analogCoords: FloatArray? = null
         var startCoords: FloatArray? = null

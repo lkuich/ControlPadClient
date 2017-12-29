@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">ControlHubClient</string>
     <string name="grpc_port">50051</string>
-    <string name="no_wifi_error">At this time, in order to use ControlHub you must be connected to a WiFi network, otherwise you will not find any hosts to connect to</string>
+    <string name="no_wifi_error">At this time, in order to use ControlHub you must be connected to a WiFi network, otherwise you will not find any hosts to connect to!\n\nApplication will now close</string>
     <string name="xbox_desc">
         Your system will recognize this layout as an actual Xbox 360 controller.
         This is the best configuration to use if your game supports it.
