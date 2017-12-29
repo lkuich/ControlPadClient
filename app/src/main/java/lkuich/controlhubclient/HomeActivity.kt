@@ -24,7 +24,7 @@ import android.widget.Button
 
 
 class BroadcastReceiver(private val postExecute: (result: String) -> Unit): AsyncTask<Void, Void, String>() {
-    private val PORT = 58384
+    private val PORT = 58385
 
     override fun doInBackground(vararg params: Void?): String {
         return startReceiving()
