@@ -21,6 +21,7 @@ import java.net.InetAddress
 import android.os.StrictMode
 import android.os.AsyncTask
 import android.widget.Button
+import java.util.*
 
 
 class BroadcastReceiver(private val postExecute: (result: String) -> Unit): AsyncTask<Void, Void, String>() {
@@ -51,6 +52,7 @@ class BroadcastReceiver(private val postExecute: (result: String) -> Unit): Asyn
             socket.send(sendPacket)
         } catch (e: IOException) {
         }
+        socket.close()
     }
 
     fun startReceiving(): String {
@@ -64,11 +66,30 @@ class BroadcastReceiver(private val postExecute: (result: String) -> Unit): Asyn
 
             val recievedIp: String = String(receivePacket.data).trim({ it <= ' ' })
             sendBroadcast(recievedIp, "recieved")
+            socket.close()
 
             return recievedIp
         } catch (e: IOException) {
         }
         return ""
+    }
+}
+
+class KeepAliveThread(private val notAlive: () -> Unit): AsyncTask<Void, Void, String>() {
+    private var aliveTime = 10
+
+    fun reset() {
+        aliveTime = 10
+    }
+
+    override fun doInBackground(vararg p0: Void?): String {
+        while (true) {
+            Thread.sleep(1000)
+            if (aliveTime <= 0)
+                notAlive()
+            else
+                aliveTime--
+        }
     }
 }
 
@@ -108,8 +129,20 @@ class HomeActivity : FragmentActivity() {
             startActivity(intent)
         })
 
+        // TODO: Not in use
+        val ka = KeepAliveThread({
+            // Disable buttons
+            runOnUiThread {
+                val btn = findViewById<Button>(R.id.btnConnect)
+                btn.isEnabled = false
+                (findViewById<TextView>(R.id.btnConnect)).text = "Looking for server..."
+            }
+        })
+
         // Start broadcasting
         BroadcastReceiver({ result ->
+            // ka.reset()
+
             // Now we can activate the button
             runOnUiThread {
                 val btn = findViewById<Button>(R.id.btnConnect)
@@ -125,6 +158,7 @@ class HomeActivity : FragmentActivity() {
                 (findViewById<TextView>(R.id.btnConnect)).text = "Connect (" + result + ")"
             }
         }).execute()
+        // ka.execute()
     }
 
     override fun onBackPressed() {

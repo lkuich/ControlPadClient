@@ -16,7 +16,7 @@ import com.github.amlcurran.showcaseview.OnShowcaseEventListener
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.github.amlcurran.showcaseview.targets.ViewTarget
 
-class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit) {
+class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit, private val onLongClick: () -> Unit) {
     var x: Float = elm.x
     var y: Float = elm.y
 
@@ -30,22 +30,24 @@ class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, pr
         })
         target.setOnLongClickListener(View.OnLongClickListener { lng ->
             vibrator.vibrate(500)
+            onLongClick()
+
             target.setOnTouchListener(
-                    View.OnTouchListener { v, evt ->
-                        when (evt.action) {
-                            MotionEvent.ACTION_DOWN -> {
-                            }
-                            MotionEvent.ACTION_MOVE -> {
-                                target.x = evt.rawX - target.width / 2
-                                target.y = evt.rawY - target.height / 2
-                            }
-                            MotionEvent.ACTION_UP -> {
-                                actionUp(target, target.x, target.y)
-                                target.setOnTouchListener(null)
-                            }
+                View.OnTouchListener { v, evt ->
+                    when (evt.action) {
+                        MotionEvent.ACTION_DOWN -> {
                         }
-                        return@OnTouchListener true
-                    })
+                        MotionEvent.ACTION_MOVE -> {
+                            target.x = evt.rawX - target.width / 2
+                            target.y = evt.rawY - target.height / 2
+                        }
+                        MotionEvent.ACTION_UP -> {
+                            actionUp(target, target.x, target.y)
+                            target.setOnTouchListener(null)
+                        }
+                    }
+                    return@OnTouchListener true
+                })
 
             return@OnLongClickListener true
         })
@@ -90,7 +92,7 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
 
                     // Go through each control
                     val element = rootView.findViewWithTag<RelativeLayout>(control.tag) // get elm
-                    val ctrl = ElementPosition(element, control.key, { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) })
+                    val ctrl = ElementPosition(element, control.key, { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }, { fullscreen() })
                     ctrl.setPos(control.x, control.y)
                     ctrl.move(element)
 

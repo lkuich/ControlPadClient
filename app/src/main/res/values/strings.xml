@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ControlHubClient</string>
+    <string name="app_name">ControlPad</string>
     <string name="grpc_port">50051</string>
     <string name="no_wifi_error">At this time, in order to use ControlHub you must be connected to a WiFi network, otherwise you will not find any hosts to connect to!\n\nApplication will now close</string>
     <string name="xbox_desc">

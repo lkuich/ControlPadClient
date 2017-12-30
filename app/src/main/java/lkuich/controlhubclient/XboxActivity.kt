@@ -92,17 +92,19 @@ class XboxActivity : BaseCanvasActivity() {
     fun trigger(id: Int, side: Trigger) {
         val trigger = findViewById<ImageView>(id)
         trigger.setOnTouchListener(
-                View.OnTouchListener { v, evt ->
-                    when (evt.action) {
-                        MotionEvent.ACTION_DOWN -> {
-                            xboxStream?.setTrigger(side, Short.MAX_VALUE.toInt())
-                        }
-                        MotionEvent.ACTION_UP -> {
-                            xboxStream?.setTrigger(side, Short.MIN_VALUE.toInt())
-                        }
+            View.OnTouchListener { v, evt ->
+                when (evt.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        fullscreen()
+
+                        xboxStream?.setTrigger(side, Short.MAX_VALUE.toInt())
                     }
-                    return@OnTouchListener true
-                })
+                    MotionEvent.ACTION_UP -> {
+                        xboxStream?.setTrigger(side, Short.MIN_VALUE.toInt())
+                    }
+                }
+                return@OnTouchListener true
+            })
     }
 
     fun button(id: Int, key: Int) {
@@ -111,6 +113,8 @@ class XboxActivity : BaseCanvasActivity() {
             View.OnTouchListener { v, evt ->
                 when (evt.action) {
                     MotionEvent.ACTION_DOWN -> {
+                        fullscreen()
+
                         pressButton(key)
                     }
                     MotionEvent.ACTION_UP -> {
@@ -137,6 +141,8 @@ class XboxActivity : BaseCanvasActivity() {
                 View.OnTouchListener { v, evt ->
             when (evt.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    fullscreen()
+
                     analogStartCoords = floatArrayOf(analog.x, analog.y)
                     analogCoords = floatArrayOf(v.x - evt.rawX, v.y - evt.rawY)
                     startCoords = floatArrayOf(evt.rawX, evt.rawY)

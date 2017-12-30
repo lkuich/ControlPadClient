@@ -236,8 +236,10 @@ class StandardInputActivity : BaseCanvasActivity() {
         val button = findViewById<View>(id)
         button.setOnTouchListener(
             View.OnTouchListener { v, evt ->
-                 when (evt.action) {
+                when (evt.action) {
                     MotionEvent.ACTION_DOWN -> {
+                        fullscreen()
+
                         sendKey(parsedKey)
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
@@ -259,6 +261,8 @@ class StandardInputActivity : BaseCanvasActivity() {
                 View.OnTouchListener { v, evt ->
             when (evt.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    fullscreen()
+
                     analogStartCoords = floatArrayOf(v.x, v.y)
                     analogCoords = floatArrayOf(v.x - evt.rawX, v.y - evt.rawY)
                     startCoords = floatArrayOf(evt.rawX, evt.rawY)
