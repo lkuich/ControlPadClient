@@ -127,6 +127,7 @@ class StandardInputActivity : BaseCanvasActivity() {
                         val keys = axis.greatestKey()
                         sendKey(keys[0], if (keys.size > 1) keys[1] else 0)
                     }, {
+
                         sendKey(parsedKey)
                     }, true)
                 }

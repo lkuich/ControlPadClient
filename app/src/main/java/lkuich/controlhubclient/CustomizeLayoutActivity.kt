@@ -259,8 +259,8 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         when (id) {
             R.id.left_shoulder -> mapLayout = R.layout.left_bumper_map
             R.id.right_shoulder -> mapLayout = R.layout.right_bumper_map
-            R.id.left_directional_pad -> mapLayout = R.layout.single_button_map
-            R.id.right_directional_pad -> mapLayout = R.layout.single_button_map
+            R.id.left_directional_pad -> mapLayout = R.layout.analog_stick_map
+            R.id.right_directional_pad -> mapLayout = R.layout.analog_stick_map
             R.id.buttons -> mapLayout = R.layout.buttons_map
             else -> return
         }
@@ -276,11 +276,9 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
                 context.findViewById<EditText>(R.id.right_bumper_map).setText(keys[0])
                 context.findViewById<EditText>(R.id.right_trigger_map).setText(keys[1])
             }
-            R.id.left_directional_pad -> {
+            R.id.left_directional_pad, R.id.right_directional_pad -> {
                 context.findViewById<EditText>(R.id.thumbstick_key).setText(keys[0])
-            }
-            R.id.right_directional_pad -> {
-                context.findViewById<EditText>(R.id.thumbstick_key).setText(keys[0])
+                context.findViewById<CheckBox>(R.id.pressure_click).isChecked = keys[1].toBoolean()
             }
             R.id.buttons -> {
                 context.findViewById<EditText>(R.id.a_map).setText(keys[0])
@@ -293,7 +291,29 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         builder.setCancelable(true)
         builder.setTitle("Button mapping")
         builder.setPositiveButton("OK") { dialog, index ->
-            // Map characters to values and save to firebase
+            // TODO: Map characters to values and save to firebase
+
+            /*
+            val selectedLayout = app?.getInstance()?.selectedLayout
+            app?.getInstance()?.layouts!!
+                    .first { e -> e.name == selectedLayout }
+                    .controls.first { control -> control.elm.tag == elm.tag }.setPos(rawX , rawY)
+
+            // Save it to DB
+            app?.getInstance()?.firebaseLayouts!!.children.forEach { layout ->
+                val name = layout.child("name").value.toString()
+                val correctLayout = name == app?.getInstance()?.selectedLayout
+                if (correctLayout) {
+                    layout.child("controls").children.forEach { config ->
+                        if (config.child("tag").value.toString() == elm.tag) {
+                            val controls = app?.getInstance()?.database?.child("layouts")?.child(layout.key)?.child("controls")?.child(config.key)!!
+                            controls.child("x")?.setValue(rawX .toString())
+                            controls.child("y")?.setValue(rawY.toString())
+                        }
+                    }
+                }
+            }
+            */
 
             mDrawerLayout?.closeDrawers()
             fullscreen()

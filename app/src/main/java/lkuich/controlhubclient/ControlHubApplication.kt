@@ -32,8 +32,8 @@ class ControlHubApplication : Application() {
     var homeLoaded: Boolean = false
     var firstRun: Boolean = true
     val defaultControls = mutableListOf( //TODO: Use strings
-            FirebaseControls("left_directional_pad", mutableListOf("shift"), 402f, 278f), // ctrl
-            FirebaseControls("right_directional_pad", mutableListOf("ctrl"), 1407f, 592f), // v
+            FirebaseControls("left_directional_pad", mutableListOf("shift", "true"), 402f, 278f), // ctrl
+            FirebaseControls("right_directional_pad", mutableListOf("ctrl", "true"), 1407f, 592f), // v
             FirebaseControls("buttons", mutableListOf(" ", "left,ctrl", "2", "r"), 1125f, 182f), // A, B, Y, X
             FirebaseControls("dpad", mutableListOf("down", "right", "up", "left"), 129f, 663f),
             FirebaseControls("left_shoulder", mutableListOf("cancel", "right,click"), 12f, 20f), // Left Bumper / Left Trigger
