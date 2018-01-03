@@ -4,6 +4,7 @@ apply plugin: 'com.google.protobuf'
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 27
@@ -59,15 +60,19 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
-    compile 'io.grpc:grpc-okhttp:1.7.0'
-    compile 'io.grpc:grpc-protobuf-lite:1.7.0'
-    compile 'io.grpc:grpc-stub:1.7.0'
+    compile 'io.grpc:grpc-okhttp:1.8.0'
+    compile 'io.grpc:grpc-protobuf-lite:1.8.0'
+    compile 'io.grpc:grpc-stub:1.8.0'
     compile 'javax.annotation:javax.annotation-api:1.2'
     compile 'com.google.firebase:firebase-core:11.8.0'
     compile 'com.google.firebase:firebase-auth:11.8.0'
     compile 'com.google.firebase:firebase-database:11.8.0'
     compile 'com.google.android.gms:play-services-auth:11.8.0'
     compile 'com.github.amlcurran.showcaseview:library:5.4.3'
+    compile('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
+        transitive = true
+    }
+    compile 'com.google.firebase:firebase-core:11.8.0'
 }
 
 // ADD THIS AT THE BOTTOM

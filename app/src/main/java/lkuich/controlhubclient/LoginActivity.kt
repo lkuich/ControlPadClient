@@ -15,7 +15,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.*
 import com.google.firebase.database.*
-
+import com.crashlytics.android.Crashlytics
+import io.fabric.sdk.android.Fabric
 
 class LoginActivity : Activity() {
     private val RC_SIGN_IN = 9001
@@ -25,6 +26,8 @@ class LoginActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Fabric.with(this, Crashlytics())
+
         setContentView(R.layout.activity_login)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
@@ -111,7 +114,6 @@ class LoginActivity : Activity() {
                         val name = it.child("name").value.toString()
                         val controls = mutableListOf<FirebaseControls>()
                         it.child("controls").children.forEach { config ->
-                            config.value
                             controls.add(FirebaseControls(
                                     config.child("tag").value.toString(),
                                     config.child("key").value as MutableList<String>,

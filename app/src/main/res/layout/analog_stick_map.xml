@@ -19,7 +19,6 @@
 
     <CheckBox
         android:id="@+id/pressure_click"
-        android:layout_marginBottom="18sp"
         android:layout_marginLeft="18sp"
         android:layout_marginRight="18sp"
         android:layout_width="wrap_content"
@@ -27,4 +26,16 @@
         android:text="Enable pressure click"
         android:checked="true" />
 
+    <TextView
+        android:id="@+id/txt_map_error"
+        android:textSize="14sp"
+        android:fontFamily="@font/segoeui"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18sp"
+        android:layout_marginBottom="18sp"
+        android:layout_marginLeft="18sp"
+        android:layout_marginRight="18sp"
+        android:textColor="@color/colorAccent"
+        android:text="" />
 </LinearLayout>

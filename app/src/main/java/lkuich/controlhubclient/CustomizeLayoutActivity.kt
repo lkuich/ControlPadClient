@@ -8,13 +8,15 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.*
 import android.widget.RelativeLayout
 import android.content.Context
-import android.os.Build
 import android.os.Vibrator
 import android.support.v4.view.MotionEventCompat
 import android.view.*
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.github.amlcurran.showcaseview.targets.ViewTarget
+import android.content.DialogInterface
+
+
 
 class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit, private val onLongClick: () -> Unit) {
     var x: Float = elm.x
@@ -33,7 +35,7 @@ class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, pr
             onLongClick()
 
             target.setOnTouchListener(
-                View.OnTouchListener { v, evt ->
+                View.OnTouchListener { _, evt ->
                     when (evt.action) {
                         MotionEvent.ACTION_DOWN -> {
                         }
@@ -59,15 +61,15 @@ class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, pr
         this.y = y // - elm.height / 2
     }
 
+    fun setKeys(vararg key: String) {
+        keys.clear()
+        key.forEach { this.keys.add(it) }
+    }
+
     fun move(elms: RelativeLayout) {
         elms.x = x
         elms.y = y
     }
-
-    /*fun move(elms: RelativeLayout) {
-        elms.x = x - elms.width / 2
-        elms.y = y - elms.height / 2
-    }*/
 }
 
 abstract class BaseCanvasActivity: AppCompatActivity() {
@@ -128,6 +130,68 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
         }
     }
 
+    fun singleKeyMap(key: String): Int = when (key) {
+        "a" -> JKeyEvent.VK_A; "b" ->  JKeyEvent.VK_B
+        "c" -> JKeyEvent.VK_C; "d" -> JKeyEvent.VK_D
+        "e" -> JKeyEvent.VK_E; "f" -> JKeyEvent.VK_F
+        "g" -> JKeyEvent.VK_G; "h" -> JKeyEvent.VK_H
+        "i" -> JKeyEvent.VK_I; "j" -> JKeyEvent.VK_J
+        "k" -> JKeyEvent.VK_K; "l" -> JKeyEvent.VK_L
+        "m" -> JKeyEvent.VK_M; "n" -> JKeyEvent.VK_N
+        "o" -> JKeyEvent.VK_O; "p" -> JKeyEvent.VK_P
+        "q" -> JKeyEvent.VK_Q; "r" -> JKeyEvent.VK_R
+        "s" -> JKeyEvent.VK_S; "t" -> JKeyEvent.VK_T
+        "u" -> JKeyEvent.VK_U; "v" -> JKeyEvent.VK_V
+        "w" -> JKeyEvent.VK_W; "x" -> JKeyEvent.VK_X
+        "y" -> JKeyEvent.VK_Y; "z" -> JKeyEvent.VK_Z
+        "1" -> JKeyEvent.VK_1; "2" -> JKeyEvent.VK_2
+        "3" -> JKeyEvent.VK_3; "4" -> JKeyEvent.VK_4
+        "5" -> JKeyEvent.VK_5; "6" -> JKeyEvent.VK_6
+        "7" -> JKeyEvent.VK_7; "8" -> JKeyEvent.VK_8
+        "9" -> JKeyEvent.VK_9; "0" -> JKeyEvent.VK_0
+        "left" -> JKeyEvent.VK_LEFT; "right" -> JKeyEvent.VK_RIGHT
+        "up" -> JKeyEvent.VK_UP; "down" -> JKeyEvent.VK_DOWN
+        "shift" -> JKeyEvent.VK_SHIFT
+        "ctrl" -> JKeyEvent.VK_CONTROL
+        "alt" -> JKeyEvent.VK_ALT
+        "esc" -> JKeyEvent.VK_ESCAPE
+        "tab" -> JKeyEvent.VK_TAB
+        else -> JKeyEvent.VK_UNDEFINED
+    }
+
+    fun parseKey(k: String): Int {
+        if (k.isEmpty())
+            throw Exception("Key cannot be empty")
+        val key = k.toLowerCase()
+
+        val split = key.split(',')
+        when (split.size) {
+            1 -> { // There's no comma, no side spec
+                // No split, just treat as single char
+                return singleKeyMap(key)
+            }
+            2 -> {
+                val side = split[0]
+                val value = split[1]
+
+                if (side == "left") {
+                    when (value) {
+                        "ctrl" -> return JKeyEvent.VK_CONTROL_LEFT
+                        "alt" -> return JKeyEvent.VK_ALT_LEFT
+                        "click" -> return JKeyEvent.LBUTTON
+                    }
+                } else { // Right
+                    when (value) {
+                        "ctrl" -> return JKeyEvent.VK_CONTROL_RIGHT
+                        "alt" -> return JKeyEvent.VK_ALT_RIGHT
+                        "click" -> return JKeyEvent.RBUTTON
+                    }
+                }
+            }
+        }
+        return JKeyEvent.VK_UNDEFINED
+    }
+
     fun fullscreen() {
         // Don't dim display
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -151,10 +215,9 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
 
         // Set controls
         app?.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == selectedLayout }.controls.forEach { control ->
-            // val rootView = findViewById<RelativeLayout>(R.id.mainContent); val view = rootView.findViewWithTag<RelativeLayout>(control.elm.tag)
             val view = findViewById<RelativeLayout>(control.elm.id)
             control.enableMovement(view)
-            control.onTap = { buttonMapDialog(control.elm.id ) }
+            control.onTap = { buttonMapDialog(control.elm.tag as String) }
             control.move(view)
         }
 
@@ -249,38 +312,39 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         return super.onTouchEvent(event)
     }
 
-    fun buttonMapDialog(id: Int) {
+    fun buttonMapDialog(tag: String) {
         val activity = this@CustomizeLayoutActivity
         val builder = AlertDialog.Builder(activity)
         val inflater = activity.layoutInflater
-        val keys = app?.layouts!!.first { it.name == app?.selectedLayout }.controls.first { it.elm.id == id }.keys
+        val selectedControl = app?.layouts!!.first { it.name == app?.selectedLayout }.controls.first { it.elm.tag == tag }
+        val keys = selectedControl.keys
 
         var mapLayout = 0
-        when (id) {
-            R.id.left_shoulder -> mapLayout = R.layout.left_bumper_map
-            R.id.right_shoulder -> mapLayout = R.layout.right_bumper_map
-            R.id.left_directional_pad -> mapLayout = R.layout.analog_stick_map
-            R.id.right_directional_pad -> mapLayout = R.layout.analog_stick_map
-            R.id.buttons -> mapLayout = R.layout.buttons_map
+        when (tag) {
+            getString(R.string.left_shoulder_tag) -> mapLayout = R.layout.left_bumper_map
+            getString(R.string.right_shoulder_tag) -> mapLayout = R.layout.right_bumper_map
+            getString(R.string.left_directional_pad_tag) -> mapLayout = R.layout.analog_stick_map
+            getString(R.string.right_directional_pad_tag) -> mapLayout = R.layout.analog_stick_map
+            getString(R.string.buttons_tag) -> mapLayout = R.layout.buttons_map
             else -> return
         }
         val context = inflater.inflate(mapLayout, null)
         builder.setView(context)
 
-        when (id) {
-            R.id.left_shoulder -> {
+        when (tag) {
+            getString(R.string.left_shoulder_tag) -> {
                 context.findViewById<EditText>(R.id.left_bumper_map).setText(keys[0])
                 context.findViewById<EditText>(R.id.left_trigger_map).setText(keys[1])
             }
-            R.id.right_shoulder -> {
+            getString(R.string.right_shoulder_tag) -> {
                 context.findViewById<EditText>(R.id.right_bumper_map).setText(keys[0])
                 context.findViewById<EditText>(R.id.right_trigger_map).setText(keys[1])
             }
-            R.id.left_directional_pad, R.id.right_directional_pad -> {
+            getString(R.string.left_directional_pad_tag), getString(R.string.right_directional_pad_tag) -> {
                 context.findViewById<EditText>(R.id.thumbstick_key).setText(keys[0])
                 context.findViewById<CheckBox>(R.id.pressure_click).isChecked = keys[1].toBoolean()
             }
-            R.id.buttons -> {
+            getString(R.string.buttons_tag) -> {
                 context.findViewById<EditText>(R.id.a_map).setText(keys[0])
                 context.findViewById<EditText>(R.id.b_map).setText(keys[1])
                 context.findViewById<EditText>(R.id.y_map).setText(keys[2])
@@ -290,41 +354,80 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
 
         builder.setCancelable(true)
         builder.setTitle("Button mapping")
-        builder.setPositiveButton("OK") { dialog, index ->
-            // TODO: Map characters to values and save to firebase
-
-            /*
-            val selectedLayout = app?.getInstance()?.selectedLayout
-            app?.getInstance()?.layouts!!
-                    .first { e -> e.name == selectedLayout }
-                    .controls.first { control -> control.elm.tag == elm.tag }.setPos(rawX , rawY)
-
-            // Save it to DB
-            app?.getInstance()?.firebaseLayouts!!.children.forEach { layout ->
-                val name = layout.child("name").value.toString()
-                val correctLayout = name == app?.getInstance()?.selectedLayout
-                if (correctLayout) {
-                    layout.child("controls").children.forEach { config ->
-                        if (config.child("tag").value.toString() == elm.tag) {
-                            val controls = app?.getInstance()?.database?.child("layouts")?.child(layout.key)?.child("controls")?.child(config.key)!!
-                            controls.child("x")?.setValue(rawX .toString())
-                            controls.child("y")?.setValue(rawY.toString())
-                        }
-                    }
-                }
-            }
-            */
-
-            mDrawerLayout?.closeDrawers()
-            fullscreen()
-        }
-        builder.setNeutralButton("Cancel") { dialog, which ->
+        builder.setPositiveButton("OK", null)
+        builder.setNeutralButton("Cancel") { _, _->
             mDrawerLayout?.closeDrawers()
             fullscreen()
         }
 
         // Build and show
-        builder.create().show()
+        val dialog = builder.create()
+        dialog.setOnShowListener {
+            val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+            button.setOnClickListener {
+                when (tag) {
+                    getString(R.string.left_shoulder_tag) -> {
+                        selectedControl.setKeys(
+                                context.findViewById<EditText>(R.id.left_bumper_map).text.toString(),
+                                context.findViewById<EditText>(R.id.left_trigger_map).text.toString()
+                        )
+                    }
+                    getString(R.string.right_shoulder_tag) -> {
+                        selectedControl.setKeys(
+                                context.findViewById<EditText>(R.id.right_bumper_map).text.toString(),
+                                context.findViewById<EditText>(R.id.right_trigger_map).text.toString()
+                        )
+                    }
+                    getString(R.string.left_directional_pad_tag), getString(R.string.right_directional_pad_tag) -> {
+                        selectedControl.setKeys(
+                                context.findViewById<EditText>(R.id.thumbstick_key).text.toString(),
+                                context.findViewById<CheckBox>(R.id.pressure_click).isChecked.toString()
+                        )
+                    }
+                    getString(R.string.buttons_tag) -> {
+                        selectedControl.setKeys(
+                                context.findViewById<EditText>(R.id.a_map).text.toString(),
+                                context.findViewById<EditText>(R.id.b_map).text.toString(),
+                                context.findViewById<EditText>(R.id.y_map).text.toString(),
+                                context.findViewById<EditText>(R.id.x_map).text.toString()
+                        )
+                    }
+                }
+
+                val keyErrors = mutableListOf<String>()
+                selectedControl.keys.forEach {
+                    if (parseKey(it) == JKeyEvent.VK_UNDEFINED && (it != "true" && it != "false"))
+                        keyErrors.add(it)
+                }
+                if (keyErrors.isEmpty()) {
+                    // Save it to DB
+                    app?.getInstance()?.firebaseLayouts!!.children.forEach { layout ->
+                        val name = layout.child("name").value.toString()
+                        val correctLayout = name == app?.getInstance()?.selectedLayout
+                        if (correctLayout) {
+                            layout.child("controls").children.forEach { config ->
+                                if (config.child("tag").value.toString() == tag) { // Get selected element
+                                    val controls = app?.getInstance()?.database?.child("layouts")?.child(layout.key)?.child("controls")?.child(config.key)!!
+                                    controls.child("key").setValue(selectedControl.keys)
+                                }
+                            }
+                        }
+                    }
+
+                    dialog.dismiss()
+
+                    mDrawerLayout?.closeDrawers()
+                    fullscreen()
+                } else {
+                    val elm = context.findViewById<TextView>(R.id.txt_map_error)
+                    elm.text = ""
+                    keyErrors.forEach {
+                        elm.append("- $it is invalid\n")
+                    }
+                }
+            }
+        }
+        dialog.show()
     }
 
     fun resetLayout() {

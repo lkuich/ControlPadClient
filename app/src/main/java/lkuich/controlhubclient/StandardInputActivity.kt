@@ -1,7 +1,5 @@
 package lkuich.controlhubclient
 
-import android.support.v4.widget.DrawerLayout
-import android.view.KeyEvent
 import android.view.View
 import android.view.MotionEvent
 import android.widget.*
@@ -9,7 +7,6 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import service.StandardInputGrpc
 import service.Services
-
 
 class Axis (var x: Float, var y: Float) {
     fun keyCode(vararg keys: Char): IntArray {
@@ -159,68 +156,6 @@ class StandardInputActivity : BaseCanvasActivity() {
         keyboardStream = KeyboardStream(stub)
 
         // Send disconnect
-    }
-
-    fun singleKeyMap(key: String): Int = when (key) {
-        "a" -> JKeyEvent.VK_A; "b" ->  JKeyEvent.VK_B
-        "c" -> JKeyEvent.VK_C; "d" -> JKeyEvent.VK_D
-        "e" -> JKeyEvent.VK_E; "f" -> JKeyEvent.VK_F
-        "g" -> JKeyEvent.VK_G; "h" -> JKeyEvent.VK_H
-        "i" -> JKeyEvent.VK_I; "j" -> JKeyEvent.VK_J
-        "k" -> JKeyEvent.VK_K; "l" -> JKeyEvent.VK_L
-        "m" -> JKeyEvent.VK_M; "n" -> JKeyEvent.VK_N
-        "o" -> JKeyEvent.VK_O; "p" -> JKeyEvent.VK_P
-        "q" -> JKeyEvent.VK_Q; "r" -> JKeyEvent.VK_R
-        "s" -> JKeyEvent.VK_S; "t" -> JKeyEvent.VK_T
-        "u" -> JKeyEvent.VK_U; "v" -> JKeyEvent.VK_V
-        "w" -> JKeyEvent.VK_W; "x" -> JKeyEvent.VK_X
-        "y" -> JKeyEvent.VK_Y; "z" -> JKeyEvent.VK_Z
-        "1" -> JKeyEvent.VK_1; "2" -> JKeyEvent.VK_2
-        "3" -> JKeyEvent.VK_3; "4" -> JKeyEvent.VK_4
-        "5" -> JKeyEvent.VK_5; "6" -> JKeyEvent.VK_6
-        "7" -> JKeyEvent.VK_7; "8" -> JKeyEvent.VK_8
-        "9" -> JKeyEvent.VK_9; "0" -> JKeyEvent.VK_0
-        "left" -> JKeyEvent.VK_LEFT; "right" -> JKeyEvent.VK_RIGHT
-        "up" -> JKeyEvent.VK_UP; "down" -> JKeyEvent.VK_DOWN
-        "shift" -> JKeyEvent.VK_SHIFT
-        "ctrl" -> JKeyEvent.VK_CONTROL
-        "alt" -> JKeyEvent.VK_ALT
-        "esc" -> JKeyEvent.VK_ESCAPE
-        "tab" -> JKeyEvent.VK_TAB
-        else -> JKeyEvent.VK_UNDEFINED
-    }
-
-    fun parseKey(k: String): Int {
-        if (k.isEmpty())
-            throw Exception("Key cannot be empty")
-        val key = k.toLowerCase()
-
-        val split = key.split(',')
-        when (split.size) {
-            1 -> { // There's no comma, no side spec
-                // No split, just treat as single char
-                return singleKeyMap(key)
-            }
-            2 -> {
-                val side = split[0]
-                val value = split[1]
-
-                if (side == "left") {
-                    when (value) {
-                        "ctrl" -> return JKeyEvent.VK_CONTROL_LEFT
-                        "alt" -> return JKeyEvent.VK_ALT_LEFT
-                        "click" -> return JKeyEvent.LBUTTON
-                    }
-                } else { // Right
-                    when (value) {
-                        "ctrl" -> return JKeyEvent.VK_CONTROL_RIGHT
-                        "alt" -> return JKeyEvent.VK_ALT_RIGHT
-                        "click" -> return JKeyEvent.RBUTTON
-                    }
-                }
-            }
-        }
-        return JKeyEvent.VK_UNDEFINED
     }
 
     fun createStub(ip: String): StandardInputGrpc.StandardInputStub {
@@ -377,7 +312,6 @@ private class MouseStream(stub: StandardInputGrpc.StandardInputStub) : GrpcStrea
 
     override fun onResponseNext(response: Services.Response) {
         // Response
-        val i = 0
     }
 
     override fun onResponseError(t: Throwable) {
