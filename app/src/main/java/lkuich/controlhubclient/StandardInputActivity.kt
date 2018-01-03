@@ -84,18 +84,18 @@ class StandardInputActivity : BaseCanvasActivity() {
     private var keyboardStream: KeyboardStream? = null
 
     override fun onCreate() {
-        app?.getInstance()?.layouts?.first { controlLayout -> controlLayout.name == app!!.getInstance()?.selectedLayout }?.controls?.forEach { control ->
-            val drawerItems = resources.getStringArray(R.array.config_options_live)
-            val mDrawerList = findViewById<ListView>(R.id.left_drawer)
-            mDrawerList?.adapter = ArrayAdapter<String>(this, R.layout.drawer_list_item, drawerItems)
-            mDrawerList?.setOnItemClickListener({ _: AdapterView<*>, _: View, position: Int, _: Long ->
-                when(position) {
-                    0 -> { // Done
-                        finish()
-                    }
+        val drawerItems = resources.getStringArray(R.array.config_options_live)
+        val mDrawerList = findViewById<ListView>(R.id.left_drawer)
+        mDrawerList?.adapter = ArrayAdapter<String>(this, R.layout.drawer_list_item, drawerItems)
+        mDrawerList?.setOnItemClickListener({ _: AdapterView<*>, _: View, position: Int, _: Long ->
+            when(position) {
+                0 -> { // Done
+                    finish()
                 }
-            })
-
+            }
+        })
+        
+        app?.getInstance()?.layouts?.first { controlLayout -> controlLayout.name == app!!.getInstance()?.selectedLayout }?.controls?.forEach { control ->
             // Move controls into position
             control.move(findViewById(control.elm.id))
 

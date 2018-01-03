@@ -7,6 +7,7 @@
         This is the best configuration to use if your game supports it.
     </string>
     <string name="standard_desc">
+        - WARNING - This is still a very experimental feature, and you may not get the best results yet\n
         Your system will treat this layout as standard keyboard and mouse input.
     </string>
     <string name="left_directional_pad_tag">left_directional_pad</string>

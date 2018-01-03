@@ -158,6 +158,17 @@ class HomeActivity : FragmentActivity() {
                 (findViewById<TextView>(R.id.btnConnect)).text = "Connect (" + result + ")"
             }
         }).execute()
+
+        //TODO: Remove
+        val btn = findViewById<Button>(R.id.btnConnect)
+        btn.isEnabled = true
+        btn.setOnClickListener({
+            val activity = if (selectedConfig == 0) XboxActivity::class.java else StandardInputActivity::class.java
+            val intent = Intent(applicationContext, activity)
+            intent.putExtra(IP, "192.168.1.117")
+            startActivity(intent)
+        })
+
         // ka.execute()
     }
 

@@ -2,12 +2,12 @@ package lkuich.controlhubclient
 
 import android.view.MotionEvent
 import android.view.View
-import android.widget.ImageView
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import service.XboxButtonsGrpc
 import service.Services
 import android.support.v4.view.MotionEventCompat
+import android.widget.*
 
 private object Xbox360Buttons
 {
@@ -51,6 +51,17 @@ class XboxActivity : BaseCanvasActivity() {
     }
 
     override fun onCreate() {
+        val drawerItems = resources.getStringArray(R.array.config_options_live)
+        val mDrawerList = findViewById<ListView>(R.id.left_drawer)
+        mDrawerList?.adapter = ArrayAdapter<String>(this, R.layout.drawer_list_item, drawerItems)
+        mDrawerList?.setOnItemClickListener({ _: AdapterView<*>, _: View, position: Int, _: Long ->
+            when(position) {
+                0 -> { // Done
+                    finish()
+                }
+            }
+        })
+
         app?.getInstance()?.layouts?.first { controlLayout -> controlLayout.name == app!!.getInstance()?.selectedLayout }?.controls?.forEach { control ->
             control.move(findViewById(control.elm.id))
         }
@@ -155,7 +166,7 @@ class XboxActivity : BaseCanvasActivity() {
 
     // Replace bool with function
     fun analogStick(innerAnalogId: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, onRelease: () -> Unit, onPressure: () -> Unit, onPressureLifted: () -> Unit) {
-        val analog = findViewById<ImageView>(innerAnalogId)
+        val analog = findViewById<RelativeLayout>(innerAnalogId)
 
         var analogStartCoords: FloatArray? = null
         var analogCoords: FloatArray? = null
