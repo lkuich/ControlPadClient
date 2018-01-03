@@ -83,8 +83,8 @@ class LoginActivity : Activity() {
             })
     }
 
-    fun showHome(user: FirebaseUser) {
-        app?.getInstance()!!.database = FirebaseDatabase.getInstance().reference.child(user.uid)
+    fun showHome(user: FirebaseUser?) {
+        app?.getInstance()!!.database = FirebaseDatabase.getInstance().reference.child(user?.uid) // Testing UID: "3fzbZeZyLShoX8BE9cu7AC9y0ot2"
         app?.getInstance()!!.database?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // Show loading
