@@ -107,6 +107,7 @@ class LoginActivity : Activity() {
                             app?.getInstance()!!.selectedLayout)
                 } else {
                     app?.getInstance()!!.firstRun = dataSnapshot.child("firstRun").value as Boolean
+                    app?.getInstance()!!.lastIp = dataSnapshot.child("lastIp").value.toString()
                     app?.getInstance()?.selectedLayout = selectedLayout.toString()
 
                     app?.getInstance()?.firebaseLayouts = dataSnapshot.child("layouts")

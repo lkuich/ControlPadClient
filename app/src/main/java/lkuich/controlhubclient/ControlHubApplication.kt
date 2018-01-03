@@ -31,6 +31,7 @@ class ControlHubApplication : Application() {
     var firebaseLayouts: DataSnapshot? = null
     var homeLoaded: Boolean = false
     var firstRun: Boolean = true
+    var lastIp: String = ""
     val defaultControls = mutableListOf( //TODO: Use strings
             FirebaseControls("left_directional_pad", mutableListOf("shift", "true"), 20.9375f, 25.74074074074074f), // ctrl
             FirebaseControls("right_directional_pad", mutableListOf("ctrl", "true"), 73.28125f, 54.81481481481482f), // v

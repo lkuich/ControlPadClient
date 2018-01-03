@@ -20,7 +20,9 @@ import java.net.DatagramSocket
 import java.net.InetAddress
 import android.os.StrictMode
 import android.os.AsyncTask
+import android.support.v7.app.AlertDialog
 import android.widget.Button
+import android.widget.EditText
 import java.util.*
 
 
@@ -134,23 +136,26 @@ class HomeActivity : FragmentActivity() {
             // Disable buttons
             runOnUiThread {
                 val btn = findViewById<Button>(R.id.btnConnect)
-                btn.isEnabled = false
+                // btn.isEnabled = false
                 (findViewById<TextView>(R.id.btnConnect)).text = "Looking for server..."
             }
         })
 
+        val btn = findViewById<Button>(R.id.btnConnect)
         // Start broadcasting
         BroadcastReceiver({ result ->
             // ka.reset()
 
             // Now we can activate the button
             runOnUiThread {
-                val btn = findViewById<Button>(R.id.btnConnect)
-                btn.isEnabled = true
                 btn.setOnClickListener({
                     val activity = if (selectedConfig == 0) XboxActivity::class.java else StandardInputActivity::class.java
                     val intent = Intent(applicationContext, activity)
                     intent.putExtra(IP, result)
+
+                    // Log the last IP
+                    setLastIp(result) // Log in server
+
                     startActivity(intent)
                 })
 
@@ -160,16 +165,35 @@ class HomeActivity : FragmentActivity() {
         }).execute()
 
         //TODO: Remove
-        val btn = findViewById<Button>(R.id.btnConnect)
-        btn.isEnabled = true
         btn.setOnClickListener({
-            val activity = if (selectedConfig == 0) XboxActivity::class.java else StandardInputActivity::class.java
-            val intent = Intent(applicationContext, activity)
-            intent.putExtra(IP, "192.168.1.117")
-            startActivity(intent)
+            val dialogContext = layoutInflater.inflate(R.layout.connect, null)
+            val editText = dialogContext.findViewById<EditText>(R.id.connect_ip)
+            editText.setText(app?.getInstance()!!.lastIp)
+
+            val builder = AlertDialog.Builder(this)
+            builder.setView(dialogContext)
+            builder.setCancelable(true)
+            builder.setTitle("Manually Connect")
+            builder.setPositiveButton("Connect") { _, _ ->
+                val ip = editText.text.toString()
+
+                val activity = if (selectedConfig == 0) XboxActivity::class.java else StandardInputActivity::class.java
+                val intent = Intent(applicationContext, activity)
+                intent.putExtra(IP, ip)
+                setLastIp(ip) // Log in server
+
+                startActivity(intent)
+            }
+
+            builder.create().show()
         })
 
         // ka.execute()
+    }
+
+    fun setLastIp(ip: String) {
+        app?.getInstance()!!.lastIp = ip
+        app?.getInstance()!!.database?.child("lastIp")?.setValue(app?.getInstance()!!.lastIp)
     }
 
     override fun onBackPressed() {

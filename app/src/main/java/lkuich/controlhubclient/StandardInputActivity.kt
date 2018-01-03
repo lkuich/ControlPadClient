@@ -94,7 +94,7 @@ class StandardInputActivity : BaseCanvasActivity() {
                 }
             }
         })
-        
+
         app?.getInstance()?.layouts?.first { controlLayout -> controlLayout.name == app!!.getInstance()?.selectedLayout }?.controls?.forEach { control ->
             // Move controls into position
             control.move(findViewById(control.elm.id))

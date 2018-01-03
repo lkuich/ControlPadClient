@@ -63,9 +63,9 @@
             android:layout_marginLeft="18sp"
             android:layout_marginRight="18sp"
             android:background="@drawable/button"
-            android:enabled="false"
+            android:enabled="true"
             android:fontFamily="@font/seguisb"
-            android:text="Looking for server..."
+            android:text="Connect Manually"
             android:textColor="@color/white" />
     </LinearLayout>
 
