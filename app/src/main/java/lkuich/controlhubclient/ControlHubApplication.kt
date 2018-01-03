@@ -32,13 +32,13 @@ class ControlHubApplication : Application() {
     var homeLoaded: Boolean = false
     var firstRun: Boolean = true
     val defaultControls = mutableListOf( //TODO: Use strings
-            FirebaseControls("left_directional_pad", mutableListOf("shift", "true"), 402f, 278f), // ctrl
-            FirebaseControls("right_directional_pad", mutableListOf("ctrl", "true"), 1407f, 592f), // v
-            FirebaseControls("buttons", mutableListOf(" ", "left,ctrl", "2", "r"), 1125f, 182f), // A, B, Y, X
-            FirebaseControls("dpad", mutableListOf("down", "right", "up", "left"), 129f, 663f),
-            FirebaseControls("left_shoulder", mutableListOf("cancel", "right,click"), 12f, 20f), // Left Bumper / Left Trigger
-            FirebaseControls("right_shoulder", mutableListOf("cancel", "left,click"), 1560f, 20f), // Right Bumper / Right Trigger
-            FirebaseControls("menu_buttons", mutableListOf("tab", "esc"), 775f, 950f) // Select / Start
+            FirebaseControls("left_directional_pad", mutableListOf("shift", "true"), 20.9375f, 25.74074074074074f), // ctrl
+            FirebaseControls("right_directional_pad", mutableListOf("ctrl", "true"), 73.28125f, 54.81481481481482f), // v
+            FirebaseControls("buttons", mutableListOf(" ", "left,ctrl", "2", "r"), 58.59375f, 16.85185185185185f), // A, B, Y, X
+            FirebaseControls("dpad", mutableListOf("down", "right", "up", "left"), 6.71875f, 61.38888888888889f),
+            FirebaseControls("left_shoulder", mutableListOf("cancel", "right,click"), 0.625f, 1.8518518518518516f), // Left Bumper / Left Trigger
+            FirebaseControls("right_shoulder", mutableListOf("cancel", "left,click"), 81.25f, 1.8518518518518516f), // Right Bumper / Right Trigger
+            FirebaseControls("menu_buttons", mutableListOf("tab", "esc"), 40.364583f, 87.96296296296296f) // Select / Start
     )
 
     fun getInstance(): ControlHubApplication? {

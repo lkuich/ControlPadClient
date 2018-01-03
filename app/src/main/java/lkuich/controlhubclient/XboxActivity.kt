@@ -9,6 +9,26 @@ import service.XboxButtonsGrpc
 import service.Services
 import android.support.v4.view.MotionEventCompat
 
+private object Xbox360Buttons
+{
+    val Up = 0x0001
+    val Down = 0x0002
+    val Left = 0x0004
+    val Right = 0x0008
+    val Start = 0x0010
+    val Back = 0x0020
+    val LeftThumb = 0x0040
+    val RightThumb = 0x0080
+    val LeftShoulder = 0x0100
+    val RightShoulder = 0x0200
+    val Guide = 0x0400
+    val A = 0x1000
+    val B = 0x2000
+    val X = 0x4000
+    val Y = 0x8000
+}
+
+
 class XboxActivity : BaseCanvasActivity() {
     private var xboxStream: XboxStream? = null
 
@@ -45,7 +65,11 @@ class XboxActivity : BaseCanvasActivity() {
             xboxStream?.setTrigger(Trigger.LEFT, 0)
         }, {
             // Pressure
-            xboxStream?.setTrigger(Trigger.LEFT, Short.MAX_VALUE.toInt())
+            // TODO: xboxStream?.setTrigger(Trigger.LEFT, Short.MAX_VALUE.toInt())
+            xboxStream?.pressButton(Xbox360Buttons.LeftThumb)
+        }, {
+            // Pressure up
+            xboxStream?.depressButton(Xbox360Buttons.LeftThumb)
         })
 
         analogStick(R.id.right_analog_inner, { x, y ->
@@ -56,23 +80,27 @@ class XboxActivity : BaseCanvasActivity() {
             xboxStream?.setTrigger(Trigger.RIGHT, 0)
         }, {
             // Pressure
-            xboxStream?.setTrigger(Trigger.RIGHT, Short.MAX_VALUE.toInt())
+            // TODO: Pull trigger: xboxStream?.setTrigger(Trigger.RIGHT, Short.MAX_VALUE.toInt())
+            xboxStream?.pressButton(Xbox360Buttons.RightThumb) // R3
+        }, {
+            // Pressure up
+            xboxStream?.depressButton(Xbox360Buttons.RightThumb) // R3
         })
 
-        button(R.id.a_button, 0x1000)
-        button(R.id.b_button, 0x2000)
-        button(R.id.x_button, 0x4000)
-        button(R.id.y_button, 0x8000)
-        button(R.id.lb, 0x0100)
-        button(R.id.rb, 0x0200)
+        button(R.id.a_button, Xbox360Buttons.A)
+        button(R.id.b_button, Xbox360Buttons.B)
+        button(R.id.x_button, Xbox360Buttons.X)
+        button(R.id.y_button, Xbox360Buttons.Y)
+        button(R.id.lb, Xbox360Buttons.LeftShoulder)
+        button(R.id.rb, Xbox360Buttons.RightShoulder)
 
-        button(R.id.left_button, 0x0004)
-        button(R.id.right_button, 0x0008)
-        button(R.id.up_button, 0x0001)
-        button(R.id.down_button, 0x0002)
+        button(R.id.left_button, Xbox360Buttons.Left)
+        button(R.id.right_button, Xbox360Buttons.Right)
+        button(R.id.up_button, Xbox360Buttons.Up)
+        button(R.id.down_button, Xbox360Buttons.Down)
 
-        button(R.id.start, 0x0010)
-        button(R.id.select, 0x0020)
+        button(R.id.start, Xbox360Buttons.Start)
+        button(R.id.select, Xbox360Buttons.Back)
 
         trigger(R.id.lt, Trigger.LEFT)
         trigger(R.id.rt, Trigger.RIGHT)
@@ -126,16 +154,13 @@ class XboxActivity : BaseCanvasActivity() {
     }
 
     // Replace bool with function
-    fun analogStick(innerAnalogId: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, onRelease: () -> Unit, onPressure: () -> Unit) {
+    fun analogStick(innerAnalogId: Int, onMove: (relativeX: Float, relativeY: Float) -> Unit, onRelease: () -> Unit, onPressure: () -> Unit, onPressureLifted: () -> Unit) {
         val analog = findViewById<ImageView>(innerAnalogId)
 
         var analogStartCoords: FloatArray? = null
         var analogCoords: FloatArray? = null
         var startCoords: FloatArray? = null
-
-        var startTime: Long = 0
-        var endTime: Long = 0
-        var trigger = true
+        var pressureDown = false
 
         analog.setOnTouchListener(
                 View.OnTouchListener { v, evt ->
@@ -146,21 +171,18 @@ class XboxActivity : BaseCanvasActivity() {
                     analogStartCoords = floatArrayOf(analog.x, analog.y)
                     analogCoords = floatArrayOf(v.x - evt.rawX, v.y - evt.rawY)
                     startCoords = floatArrayOf(evt.rawX, evt.rawY)
-
-                    startTime = System.nanoTime()
-                    trigger = true
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    if (evt.pressure > 1.3)
+                    if (evt.pressure > 1.3) {
                         onPressure()
+                        pressureDown = true
+                    } else if (pressureDown) {
+                        pressureDown = false
+                        onPressureLifted()
+                    }
 
                     val evtX = evt.rawX
                     val evtY = evt.rawY
-
-                    /*
-                    if (evtX > 0 || evtY > 0)
-                        left_trigger = false
-                    */
 
                     v.animate()
                             .x(evtX + analogCoords!![0])
@@ -179,14 +201,6 @@ class XboxActivity : BaseCanvasActivity() {
                             .y(analogStartCoords!![1])
                             .setDuration(0)
                             .start()
-
-                    /*
-                    endTime = System.nanoTime()
-                    val durationMs = (endTime - startTime) / 1000000
-                    Log.v("TIME", durationMs.toString())
-                    if (durationMs <= 100)
-                        onPressure()
-                    */
 
                     onRelease()
                 }

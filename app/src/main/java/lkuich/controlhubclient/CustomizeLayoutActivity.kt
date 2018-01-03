@@ -15,6 +15,11 @@ import com.github.amlcurran.showcaseview.OnShowcaseEventListener
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.github.amlcurran.showcaseview.targets.ViewTarget
 import android.content.DialogInterface
+import android.app.Activity
+import android.graphics.Point
+import java.security.AccessController.getContext
+import android.util.DisplayMetrics
+
 
 
 
@@ -96,8 +101,8 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
                     val element = rootView.findViewWithTag<RelativeLayout>(control.tag) // get elm
                     val ctrl = ElementPosition(element, control.key, { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }, { fullscreen() })
                     ctrl.setPos(control.x, control.y)
-                    ctrl.move(element)
 
+                    ctrl.move(element)
                     elements.add(ctrl)
                 }
                 app?.getInstance()!!.layouts.add(ControlLayout(it.name, elements))
@@ -218,12 +223,23 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
             val view = findViewById<RelativeLayout>(control.elm.id)
             control.enableMovement(view)
             control.onTap = { buttonMapDialog(control.elm.tag as String) }
+
+            if (app?.getInstance()!!.firstRun) {
+                val dimensions = getDimensions()
+
+                val x = dimensions.x * (control.x / 100)
+                val y = dimensions.y * (control.y / 100)
+                control.setPos(x, y)
+
+                // Update DB
+                onElmUp(control.elm, x, y)
+            }
             control.move(view)
         }
 
         val drawerItems = resources.getStringArray(R.array.config_options)
         mDrawerLayout = findViewById(R.id.drawer_layout)
-        mDrawerList = findViewById(R.id.left_drawer)
+        mDrawerList = findViewById<ListView>(R.id.left_drawer)
         mDrawerList?.adapter = ArrayAdapter<String>(this, R.layout.drawer_list_item, drawerItems)
         mDrawerList?.setOnItemClickListener({ _: AdapterView<*>, _: View, position: Int, _: Long ->
             when(position) {
@@ -430,24 +446,35 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         dialog.show()
     }
 
-    fun resetLayout() {
+    private fun getDimensions(): Point {
+        val size = Point()
+        windowManager.defaultDisplay.getRealSize(size)
+        return size
+    }
+
+    private fun resetLayout() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setTitle("Warning")
             .setMessage("Are you sure you would like to reset " + app?.getInstance()!!.selectedLayout + "?")
-            .setPositiveButton(android.R.string.yes, { dialog, which ->
+            .setPositiveButton(android.R.string.yes, { _, _ ->
                 app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == app!!.getInstance()!!.selectedLayout }.controls.forEach { control ->
                     val ctrl = app!!.getInstance()!!.defaultControls.first { it.tag == control.elm.tag }
-                    control.setPos(ctrl.x, ctrl.y)
 
-                    control.elm.x = ctrl.x
-                    control.elm.y = ctrl.y
-                    onElmUp(control.elm, ctrl.x, ctrl.y)
+                    val dimensions = getDimensions()
+
+                    val x = dimensions.x * (ctrl.x / 100)
+                    val y = dimensions.y * (ctrl.y / 100)
+
+                    control.setPos(x, y)
+                    control.elm.x = x
+                    control.elm.y = y
+                    onElmUp(control.elm, x, y)
                 }
 
                 mDrawerLayout?.closeDrawers()
                 fullscreen()
             })
-            .setNeutralButton(android.R.string.no, { dialog, which ->
+            .setNeutralButton(android.R.string.no, { _, _ ->
                 mDrawerLayout?.closeDrawers()
                 fullscreen()
             })
@@ -463,7 +490,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
 
         builder.setCancelable(true)
         builder.setTitle("Select layout")
-        builder.setPositiveButton("OK") { dialog, index ->
+        builder.setPositiveButton("OK") { _, _ ->
             app!!.getInstance()!!.selectedLayout = currentItem
             app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == app!!.getInstance()!!.selectedLayout }.controls.forEach { control ->
                 val view = findViewById<RelativeLayout>(control.elm.id)
@@ -474,7 +501,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
             mDrawerLayout?.closeDrawers()
             fullscreen()
         }
-        builder.setNeutralButton("Cancel") { dialog, which ->
+        builder.setNeutralButton("Cancel") { _, _ ->
             mDrawerLayout?.closeDrawers()
             fullscreen()
         }
