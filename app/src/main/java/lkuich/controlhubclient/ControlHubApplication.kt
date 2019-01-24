@@ -9,12 +9,12 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.Vibrator
 import android.support.v7.app.AlertDialog
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import android.view.MotionEvent
+import android.view.View
+import android.widget.RelativeLayout
 import java.util.*
-
 
 class ControlLayout(val name: String, val controls: MutableList<ElementPosition>)
 data class FirebaseControls(val tag: String, val key: MutableList<String>, val x: Float, val y: Float) // Mapped by firebase
@@ -27,8 +27,6 @@ class ControlHubApplication : Application() {
     val cachedLayouts = mutableListOf<FirebaseLayout>()
     var layouts = mutableListOf<ControlLayout>()
     var selectedLayout: String = "Default"
-    var database: DatabaseReference? = null
-    var firebaseLayouts: DataSnapshot? = null
     var homeLoaded: Boolean = false
     var firstRun: Boolean = true
     var lastIp: String = ""

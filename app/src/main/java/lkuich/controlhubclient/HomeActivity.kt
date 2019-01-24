@@ -23,7 +23,6 @@ import android.os.AsyncTask
 import android.support.v7.app.AlertDialog
 import android.widget.Button
 import android.widget.EditText
-import java.util.*
 
 
 class BroadcastReceiver(private val postExecute: (result: String) -> Unit): AsyncTask<Void, Void, String>() {
@@ -125,47 +124,37 @@ class HomeActivity : FragmentActivity() {
             }
         })
 
-        // Customize layout button
-        findViewById<Button>(R.id.btnConfigure).setOnClickListener({
-            val intent = Intent(applicationContext, CustomizeLayoutActivity::class.java)
-            startActivity(intent)
-        })
-
         // TODO: Not in use
-        val ka = KeepAliveThread({
+        val ka = KeepAliveThread {
             // Disable buttons
             runOnUiThread {
                 val btn = findViewById<Button>(R.id.btnConnect)
-                // btn.isEnabled = false
                 (findViewById<TextView>(R.id.btnConnect)).text = "Looking for server..."
             }
-        })
+        }
 
         val btn = findViewById<Button>(R.id.btnConnect)
         // Start broadcasting
-        BroadcastReceiver({ result ->
+        BroadcastReceiver { result ->
             // ka.reset()
 
             // Now we can activate the button
             runOnUiThread {
-                btn.setOnClickListener({
+                btn.setOnClickListener {
                     val activity = if (selectedConfig == 0) XboxActivity::class.java else StandardInputActivity::class.java
                     val intent = Intent(applicationContext, activity)
                     intent.putExtra(IP, result)
 
-                    // Log the last IP
-                    setLastIp(result) // Log in server
-
                     startActivity(intent)
-                })
+                }
 
                 // (findViewById<ProgressBar>(R.id.progressSpinner)).visibility = View.INVISIBLE
                 (findViewById<TextView>(R.id.btnConnect)).text = "Connect (" + result + ")"
             }
-        }).execute()
+        }.execute()
 
         //TODO: Remove
-        btn.setOnClickListener({
+        btn.setOnClickListener {
             val dialogContext = layoutInflater.inflate(R.layout.connect, null)
             val editText = dialogContext.findViewById<EditText>(R.id.connect_ip)
             editText.setText(app?.getInstance()!!.lastIp)
@@ -180,20 +169,14 @@ class HomeActivity : FragmentActivity() {
                 val activity = if (selectedConfig == 0) XboxActivity::class.java else StandardInputActivity::class.java
                 val intent = Intent(applicationContext, activity)
                 intent.putExtra(IP, ip)
-                setLastIp(ip) // Log in server
 
                 startActivity(intent)
             }
 
             builder.create().show()
-        })
+        }
 
         // ka.execute()
-    }
-
-    fun setLastIp(ip: String) {
-        app?.getInstance()!!.lastIp = ip
-        app?.getInstance()!!.database?.child("lastIp")?.setValue(app?.getInstance()!!.lastIp)
     }
 
     override fun onBackPressed() {

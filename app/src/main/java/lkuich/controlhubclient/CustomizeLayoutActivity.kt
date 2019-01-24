@@ -21,9 +21,7 @@ import java.security.AccessController.getContext
 import android.util.DisplayMetrics
 
 
-
-
-class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit, private val onLongClick: () -> Unit) {
+class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>) {
     var x: Float = elm.x
     var y: Float = elm.y
 
@@ -37,25 +35,6 @@ class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, pr
         })
         target.setOnLongClickListener(View.OnLongClickListener { lng ->
             vibrator.vibrate(500)
-            onLongClick()
-
-            target.setOnTouchListener(
-                View.OnTouchListener { _, evt ->
-                    when (evt.action) {
-                        MotionEvent.ACTION_DOWN -> {
-                        }
-                        MotionEvent.ACTION_MOVE -> {
-                            target.x = evt.rawX - target.width / 2
-                            target.y = evt.rawY - target.height / 2
-                        }
-                        MotionEvent.ACTION_UP -> {
-                            actionUp(target, target.x, target.y)
-                            target.setOnTouchListener(null)
-                        }
-                    }
-                    return@OnTouchListener true
-                })
-
             return@OnLongClickListener true
         })
 
@@ -99,7 +78,7 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
 
                     // Go through each control
                     val element = rootView.findViewWithTag<RelativeLayout>(control.tag) // get elm
-                    val ctrl = ElementPosition(element, control.key, { elm, rawX, rawY -> onElmUp(elm, rawX, rawY) }, { fullscreen() })
+                    val ctrl = ElementPosition(element, control.key)
                     ctrl.setPos(control.x, control.y)
 
                     ctrl.move(element)
@@ -110,29 +89,6 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
         }
 
         onCreate()
-    }
-
-    fun onElmUp(elm: View, rawX: Float, rawY: Float) {
-        // Save layout
-        val selectedLayout = app?.getInstance()?.selectedLayout
-        app?.getInstance()?.layouts!!
-                .first { e -> e.name == selectedLayout }
-                .controls.first { control -> control.elm.tag == elm.tag }.setPos(rawX , rawY)
-
-        // Save it to DB
-        app?.getInstance()?.firebaseLayouts!!.children.forEach { layout ->
-            val name = layout.child("name").value.toString()
-            val correctLayout = name == app?.getInstance()?.selectedLayout
-            if (correctLayout) {
-                layout.child("controls").children.forEach { config ->
-                    if (config.child("tag").value.toString() == elm.tag) {
-                        val controls = app?.getInstance()?.database?.child("layouts")?.child(layout.key)?.child("controls")?.child(config.key)!!
-                        controls.child("x")?.setValue(rawX .toString())
-                        controls.child("y")?.setValue(rawY.toString())
-                    }
-                }
-            }
-        }
     }
 
     fun singleKeyMap(key: String): Int = when (key) {
@@ -230,9 +186,6 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
                 val x = dimensions.x * (control.x / 100)
                 val y = dimensions.y * (control.y / 100)
                 control.setPos(x, y)
-
-                // Update DB
-                onElmUp(control.elm, x, y)
             }
             control.move(view)
         }
@@ -260,7 +213,6 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
 
             // Set to not first run
             app?.getInstance()!!.firstRun = false
-            app?.getInstance()!!.database?.child("firstRun")?.setValue(app?.getInstance()!!.firstRun)
         }
     }
 
@@ -416,20 +368,6 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
                         keyErrors.add(it)
                 }
                 if (keyErrors.isEmpty()) {
-                    // Save it to DB
-                    app?.getInstance()?.firebaseLayouts!!.children.forEach { layout ->
-                        val name = layout.child("name").value.toString()
-                        val correctLayout = name == app?.getInstance()?.selectedLayout
-                        if (correctLayout) {
-                            layout.child("controls").children.forEach { config ->
-                                if (config.child("tag").value.toString() == tag) { // Get selected element
-                                    val controls = app?.getInstance()?.database?.child("layouts")?.child(layout.key)?.child("controls")?.child(config.key)!!
-                                    controls.child("key").setValue(selectedControl.keys)
-                                }
-                            }
-                        }
-                    }
-
                     dialog.dismiss()
 
                     mDrawerLayout?.closeDrawers()
@@ -455,30 +393,29 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
     private fun resetLayout() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setTitle("Warning")
-            .setMessage("Are you sure you would like to reset " + app?.getInstance()!!.selectedLayout + "?")
-            .setPositiveButton(android.R.string.yes, { _, _ ->
-                app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == app!!.getInstance()!!.selectedLayout }.controls.forEach { control ->
-                    val ctrl = app!!.getInstance()!!.defaultControls.first { it.tag == control.elm.tag }
+                .setMessage("Are you sure you would like to reset " + app?.getInstance()!!.selectedLayout + "?")
+                .setPositiveButton(android.R.string.yes, { _, _ ->
+                    app!!.getInstance()!!.layouts.first { controlLayout -> controlLayout.name == app!!.getInstance()!!.selectedLayout }.controls.forEach { control ->
+                        val ctrl = app!!.getInstance()!!.defaultControls.first { it.tag == control.elm.tag }
 
-                    val dimensions = getDimensions()
+                        val dimensions = getDimensions()
 
-                    val x = dimensions.x * (ctrl.x / 100)
-                    val y = dimensions.y * (ctrl.y / 100)
+                        val x = dimensions.x * (ctrl.x / 100)
+                        val y = dimensions.y * (ctrl.y / 100)
 
-                    control.setPos(x, y)
-                    control.elm.x = x
-                    control.elm.y = y
-                    onElmUp(control.elm, x, y)
-                }
+                        control.setPos(x, y)
+                        control.elm.x = x
+                        control.elm.y = y
+                    }
 
-                mDrawerLayout?.closeDrawers()
-                fullscreen()
-            })
-            .setNeutralButton(android.R.string.no, { _, _ ->
-                mDrawerLayout?.closeDrawers()
-                fullscreen()
-            })
-            .show()
+                    mDrawerLayout?.closeDrawers()
+                    fullscreen()
+                })
+                .setNeutralButton(android.R.string.no, { _, _ ->
+                    mDrawerLayout?.closeDrawers()
+                    fullscreen()
+                })
+                .show()
     }
 
     fun layoutSelection() {
