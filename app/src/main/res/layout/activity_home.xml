@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20sp"
+        android:fontFamily="@font/segoeui"
+        android:textAlignment="center"
+        android:textSize="38sp"
+        android:textColor="@color/white"
+        android:text="@string/app_name" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20sp"
+        android:fontFamily="@font/segoeui"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:text="Select Config" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/inputType"
+        android:layout_width="match_parent"
+        android:layout_height="242dp"
+        android:layout_marginBottom="24sp"
+        android:layout_marginTop="12sp" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:gravity="center|bottom"
+        android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/btnConfigure"
+            android:layout_gravity="center_horizontal|center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18sp"
+            android:layout_marginBottom="18sp"
+            android:layout_marginLeft="18sp"
+            android:layout_marginRight="18sp"
+            android:background="@drawable/button"
+            android:fontFamily="@font/seguisb"
+            android:text="Configure"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/btnConnect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|center"
+            android:layout_marginBottom="18sp"
+            android:layout_marginLeft="18sp"
+            android:layout_marginRight="18sp"
+            android:background="@drawable/button"
+            android:enabled="true"
+            android:fontFamily="@font/seguisb"
+            android:text="Connect Manually"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</LinearLayout>
