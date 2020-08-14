@@ -1,27 +1,21 @@
 package lkuich.controlhubclient
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.widget.*
 import android.widget.RelativeLayout
 import android.content.Context
-import android.os.Vibrator
-import android.support.v4.view.MotionEventCompat
 import android.view.*
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.github.amlcurran.showcaseview.targets.ViewTarget
-import android.content.DialogInterface
-import android.app.Activity
 import android.graphics.Point
-import java.security.AccessController.getContext
-import android.util.DisplayMetrics
-
-
-
+import android.os.Vibrator
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MotionEventCompat
+import androidx.drawerlayout.widget.DrawerLayout
 
 class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit, private val onLongClick: () -> Unit) {
     var x: Float = elm.x
@@ -30,11 +24,10 @@ class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, pr
     private val vibrator: Vibrator = (elm.context.getSystemService(Context.VIBRATOR_SERVICE)) as Vibrator
     lateinit var onTap: () -> Unit
 
+    @SuppressLint("ClickableViewAccessibility")
     fun enableMovement(elms: RelativeLayout? = null) {
         val target = elms ?: elm
-        target.setOnClickListener({
-            onTap()
-        })
+        target.setOnClickListener { onTap() }
         target.setOnLongClickListener(View.OnLongClickListener { lng ->
             vibrator.vibrate(500)
             onLongClick()
@@ -126,9 +119,15 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
             if (correctLayout) {
                 layout.child("controls").children.forEach { config ->
                     if (config.child("tag").value.toString() == elm.tag) {
-                        val controls = app?.getInstance()?.database?.child("layouts")?.child(layout.key)?.child("controls")?.child(config.key)!!
-                        controls.child("x")?.setValue(rawX .toString())
-                        controls.child("y")?.setValue(rawY.toString())
+                        val controls = app?.getInstance()?.
+                            database?.
+                            child("layouts")?.
+                            child(layout.key!!)?.
+                            child("controls")?.
+                            child(config.key!!)!!
+
+                        controls.child("x").setValue(rawX .toString())
+                        controls.child("y").setValue(rawY.toString())
                     }
                 }
             }
@@ -241,7 +240,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
         mDrawerLayout = findViewById(R.id.drawer_layout)
         mDrawerList = findViewById<ListView>(R.id.left_drawer)
         mDrawerList?.adapter = ArrayAdapter<String>(this, R.layout.drawer_list_item, drawerItems)
-        mDrawerList?.setOnItemClickListener({ _: AdapterView<*>, _: View, position: Int, _: Long ->
+        mDrawerList?.setOnItemClickListener { _: AdapterView<*>, _: View, position: Int, _: Long ->
             when(position) {
                 0 -> { // Select config
                     layoutSelection()
@@ -253,7 +252,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
                     finish()
                 }
             }
-        })
+        }
 
         if (app?.getInstance()!!.firstRun) {
             showTutorial()
@@ -310,8 +309,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
     private var mDrawerList: ListView? = null
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        val action = MotionEventCompat.getActionMasked(event)
-        when (action) {
+        when (MotionEventCompat.getActionMasked(event)) {
             MotionEvent.ACTION_DOWN -> {
             }
             MotionEvent.ACTION_MOVE -> {
@@ -423,7 +421,7 @@ class CustomizeLayoutActivity : BaseCanvasActivity() {
                         if (correctLayout) {
                             layout.child("controls").children.forEach { config ->
                                 if (config.child("tag").value.toString() == tag) { // Get selected element
-                                    val controls = app?.getInstance()?.database?.child("layouts")?.child(layout.key)?.child("controls")?.child(config.key)!!
+                                    val controls = app?.getInstance()?.database?.child("layouts")?.child(layout.key!!)?.child("controls")?.child(config.key!!)!!
                                     controls.child("key").setValue(selectedControl.keys)
                                 }
                             }

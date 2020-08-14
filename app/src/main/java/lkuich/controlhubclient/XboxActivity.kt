@@ -6,8 +6,8 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import service.XboxButtonsGrpc
 import service.Services
-import android.support.v4.view.MotionEventCompat
 import android.widget.*
+import androidx.core.view.MotionEventCompat
 
 private object Xbox360Buttons
 {
@@ -54,13 +54,13 @@ class XboxActivity : BaseCanvasActivity() {
         val drawerItems = resources.getStringArray(R.array.config_options_live)
         val mDrawerList = findViewById<ListView>(R.id.left_drawer)
         mDrawerList?.adapter = ArrayAdapter<String>(this, R.layout.drawer_list_item, drawerItems)
-        mDrawerList?.setOnItemClickListener({ _: AdapterView<*>, _: View, position: Int, _: Long ->
+        mDrawerList?.setOnItemClickListener { _: AdapterView<*>, _: View, position: Int, _: Long ->
             when(position) {
                 0 -> { // Done
                     finish()
                 }
             }
-        })
+        }
 
         app?.getInstance()?.layouts?.first { controlLayout -> controlLayout.name == app!!.getInstance()?.selectedLayout }?.controls?.forEach { control ->
             control.move(findViewById(control.elm.id))
@@ -124,7 +124,7 @@ class XboxActivity : BaseCanvasActivity() {
         val host: String = ip
         val port: Int = getString(R.string.grpc_port).toInt()
 
-        val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
+        val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build()
         return XboxButtonsGrpc.newStub(channel)
     }
 

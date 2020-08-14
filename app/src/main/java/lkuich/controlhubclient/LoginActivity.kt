@@ -69,7 +69,7 @@ class LoginActivity : Activity() {
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
         val credential: AuthCredential = GoogleAuthProvider.getCredential(acct.idToken, null)
         mAuth?.signInWithCredential(credential)
-            ?.addOnCompleteListener({ task: Task<AuthResult> ->
+            ?.addOnCompleteListener { task: Task<AuthResult> ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     val user: FirebaseUser = mAuth?.currentUser!!
@@ -80,11 +80,11 @@ class LoginActivity : Activity() {
                     // If sign in fails, display a message to the user.
                     Log.w("error", "couldn't auth firebase")
                 }
-            })
+            }
     }
 
     fun showHome(user: FirebaseUser?) {
-        app?.getInstance()!!.database = FirebaseDatabase.getInstance().reference.child(user?.uid) // Testing UID: "3fzbZeZyLShoX8BE9cu7AC9y0ot2"
+        app?.getInstance()!!.database = FirebaseDatabase.getInstance().reference.child(user?.uid!!)
         app?.getInstance()!!.database?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // Show loading
@@ -150,7 +150,7 @@ class LoginActivity : Activity() {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 // Google Sign In was successful, authenticate with Firebase
-                val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
+                val account: GoogleSignInAccount = task.getResult(ApiException::class.java)!!
                 firebaseAuthWithGoogle(account)
             } catch (e: ApiException) {
                 // Google Sign In failed, update UI appropriately

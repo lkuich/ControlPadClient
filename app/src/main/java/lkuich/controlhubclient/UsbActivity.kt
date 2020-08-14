@@ -2,11 +2,8 @@ package lkuich.controlhubclient
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.provider.Settings
-import android.support.v4.app.ActivityCompat.startActivityForResult
-
 
 // TODO: Maybe use?
 class UsbActivity : Activity() {

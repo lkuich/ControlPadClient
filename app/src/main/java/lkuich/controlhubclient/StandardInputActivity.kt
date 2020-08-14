@@ -23,8 +23,8 @@ class Axis (var x: Float, var y: Float) {
     }
 
     fun greatestKey(): IntArray {
-        val min = 1
-        val max = 4
+        val min = 1f
+        val max = 4f
 
         if (y > 0 && x > 0) { // Up, right
             if (x > y)
@@ -161,7 +161,7 @@ class StandardInputActivity : BaseCanvasActivity() {
         val host: String = ip
         val port: Int = getString(R.string.grpc_port).toInt()
 
-        val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build()
+        val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build()
         return StandardInputGrpc.newStub(channel)
     }
 

@@ -1,6 +1,7 @@
 package lkuich.controlhubclient
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
 import android.content.IntentFilter
@@ -8,13 +9,8 @@ import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.wifi.WifiManager
-import android.os.Build
-import android.support.v7.app.AlertDialog
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import java.util.*
-
 
 class ControlLayout(val name: String, val controls: MutableList<ElementPosition>)
 data class FirebaseControls(val tag: String, val key: MutableList<String>, val x: Float, val y: Float) // Mapped by firebase
@@ -68,14 +64,14 @@ class ControlHubApplication : Application() {
             val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
             builder.setTitle("Error")
                     .setMessage(getString(R.string.no_wifi_error))
-                    .setNeutralButton(android.R.string.ok, { dialog, which ->
+                    .setNeutralButton(android.R.string.ok) { _, _ ->
                         activity.finish()
-                    })
-                    .show()
+                    }
+                .show()
         }
     }
 
-    fun isWifiConnected(): Boolean {
+    private fun isWifiConnected(): Boolean {
         val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val networkInfo: NetworkInfo
         if (wifi.isWifiEnabled) {

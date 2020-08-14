@@ -1,15 +1,10 @@
 package lkuich.controlhubclient
 
+import android.app.AlertDialog
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
-import android.support.v4.app.FragmentManager
 import android.view.View
-import android.support.v4.view.ViewPager
 import android.view.ViewGroup
 import android.view.LayoutInflater
-import android.support.v4.app.FragmentStatePagerAdapter
-import android.support.v4.view.PagerAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import android.content.Intent
@@ -20,11 +15,14 @@ import java.net.DatagramSocket
 import java.net.InetAddress
 import android.os.StrictMode
 import android.os.AsyncTask
-import android.support.v7.app.AlertDialog
 import android.widget.Button
 import android.widget.EditText
-import java.util.*
-
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
 
 class BroadcastReceiver(private val postExecute: (result: String) -> Unit): AsyncTask<Void, Void, String>() {
     private val PORT = 58385
@@ -143,12 +141,12 @@ class HomeActivity : FragmentActivity() {
 
         val btn = findViewById<Button>(R.id.btnConnect)
         // Start broadcasting
-        BroadcastReceiver({ result ->
+        BroadcastReceiver { result ->
             // ka.reset()
 
             // Now we can activate the button
             runOnUiThread {
-                btn.setOnClickListener({
+                btn.setOnClickListener {
                     val activity = if (selectedConfig == 0) XboxActivity::class.java else StandardInputActivity::class.java
                     val intent = Intent(applicationContext, activity)
                     intent.putExtra(IP, result)
@@ -157,15 +155,15 @@ class HomeActivity : FragmentActivity() {
                     setLastIp(result) // Log in server
 
                     startActivity(intent)
-                })
+                }
 
                 // (findViewById<ProgressBar>(R.id.progressSpinner)).visibility = View.INVISIBLE
-                (findViewById<TextView>(R.id.btnConnect)).text = "Connect (" + result + ")"
+                (findViewById<TextView>(R.id.btnConnect)).text = "Connect ($result)"
             }
-        }).execute()
+        }.execute()
 
         //TODO: Remove
-        btn.setOnClickListener({
+        btn.setOnClickListener {
             val dialogContext = layoutInflater.inflate(R.layout.connect, null)
             val editText = dialogContext.findViewById<EditText>(R.id.connect_ip)
             editText.setText(app?.getInstance()!!.lastIp)
@@ -186,7 +184,7 @@ class HomeActivity : FragmentActivity() {
             }
 
             builder.create().show()
-        })
+        }
 
         // ka.execute()
     }
