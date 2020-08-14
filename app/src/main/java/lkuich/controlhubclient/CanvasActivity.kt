@@ -1,13 +1,10 @@
 package lkuich.controlhubclient
 
 import Gesture.Controller
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.content.pm.ActivityInfo
-import android.app.Activity
-import android.content.Context
 
 class CanvasActivity : Controller() {
 
