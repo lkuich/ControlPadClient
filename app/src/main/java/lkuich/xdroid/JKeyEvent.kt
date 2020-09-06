@@ -1,4 +1,4 @@
-package lkuich.controlhubclient
+package lkuich.xdroid
 
 object JKeyEvent {
     val CHAR_UNDEFINED = 65535

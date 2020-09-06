@@ -1,4 +1,4 @@
-package lkuich.controlhubclient
+package lkuich.xdroid
 
 import android.view.MotionEvent
 import android.view.View
@@ -8,6 +8,7 @@ import service.XboxButtonsGrpc
 import service.Services
 import android.widget.*
 import androidx.core.view.MotionEventCompat
+import lkuich.xdroid.R
 
 private object Xbox360Buttons
 {

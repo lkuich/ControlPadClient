@@ -1,4 +1,4 @@
-package lkuich.controlhubclient
+package lkuich.xdroid
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -11,6 +11,7 @@ import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseReference
+import lkuich.xdroid.R
 
 class ControlLayout(val name: String, val controls: MutableList<ElementPosition>)
 data class FirebaseControls(val tag: String, val key: MutableList<String>, val x: Float, val y: Float) // Mapped by firebase

@@ -1,4 +1,4 @@
-package lkuich.controlhubclient
+package lkuich.xdroid
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -16,6 +16,7 @@ import android.os.Vibrator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MotionEventCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import lkuich.xdroid.R
 
 class ElementPosition(val elm: RelativeLayout, var keys: MutableList<String>, private val actionUp: (elm: View, rawX: Float, rawY: Float) -> Unit, private val onLongClick: () -> Unit) {
     var x: Float = elm.x
@@ -135,7 +136,7 @@ abstract class BaseCanvasActivity: AppCompatActivity() {
     }
 
     fun singleKeyMap(key: String): Int = when (key) {
-        "a" -> JKeyEvent.VK_A; "b" ->  JKeyEvent.VK_B
+        "a" -> JKeyEvent.VK_A; "b" -> JKeyEvent.VK_B
         "c" -> JKeyEvent.VK_C; "d" -> JKeyEvent.VK_D
         "e" -> JKeyEvent.VK_E; "f" -> JKeyEvent.VK_F
         "g" -> JKeyEvent.VK_G; "h" -> JKeyEvent.VK_H

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="lkuich.controlhubclient">
+    package="lkuich.xdroid">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:name="ControlHubApplication"
+        android:name="lkuich.xdroid.ControlHubApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_controller"
         android:label="@string/app_name"
@@ -17,7 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/FullscreenTheme">
         <activity
-            android:name=".LoginActivity"
+            android:name="lkuich.xdroid.LoginActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme">
@@ -28,29 +28,29 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".HomeActivity"
+            android:name="lkuich.xdroid.HomeActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme" />
         <activity
-            android:name=".XboxActivity"
+            android:name="lkuich.xdroid.XboxActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme" />
         <activity
-            android:name=".StandardInputActivity"
+            android:name="lkuich.xdroid.StandardInputActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme" />
         <activity
-            android:name=".CustomizeLayoutActivity"
+            android:name="lkuich.xdroid.CustomizeLayoutActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:parentActivityName=".HomeActivity"
+            android:parentActivityName="lkuich.xdroid.HomeActivity"
             android:theme="@style/FullscreenTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="lkuich.controlhubclient.HomeActivity" />
+                android:value="lkuich.xdroid.HomeActivity" />
         </activity>
     </application>
 

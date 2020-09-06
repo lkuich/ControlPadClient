@@ -1,4 +1,4 @@
-package lkuich.controlhubclient
+package lkuich.xdroid
 
 import android.app.Activity
 import android.content.Intent
@@ -15,8 +15,11 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.*
 import com.google.firebase.database.*
-import com.crashlytics.android.Crashlytics
-import io.fabric.sdk.android.Fabric
+import java.lang.Exception
+
+// import com.crashlytics.android.Crashlytics
+// import io.fabric.sdk.android.Fabric
+// import lkuich.xdroid.R
 
 class LoginActivity : Activity() {
     private val RC_SIGN_IN = 9001
@@ -26,7 +29,7 @@ class LoginActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Fabric.with(this, Crashlytics())
+        // Fabric.with(this, Crashlytics())
 
         setContentView(R.layout.activity_login)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -38,9 +41,7 @@ class LoginActivity : Activity() {
 
         signinButton = findViewById(R.id.sign_in_button)
         signinButton?.isEnabled = false
-        signinButton?.setOnClickListener({
-            googleSignin()
-        })
+        signinButton?.setOnClickListener { googleSignin() }
         findViewById<LinearLayout>(R.id.login_progress).visibility = View.INVISIBLE
     }
 
@@ -60,10 +61,14 @@ class LoginActivity : Activity() {
                 .requestIdToken(getString(R.string.web_client_id))
                 .build()
 
-        // Build a GoogleSignInClient with the options specified by gso.
-        val mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
-        val signInIntent = mGoogleSignInClient.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
+        try {
+            // Build a GoogleSignInClient with the options specified by gso.
+            val mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
+            val signInIntent = mGoogleSignInClient.signInIntent
+            startActivityForResult(signInIntent, RC_SIGN_IN)
+        } catch (e: Exception) {
+            Log.e("Signin failed: ", e.message);
+        }
     }
 
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
@@ -115,12 +120,14 @@ class LoginActivity : Activity() {
                         val name = it.child("name").value.toString()
                         val controls = mutableListOf<FirebaseControls>()
                         it.child("controls").children.forEach { config ->
-                            controls.add(FirebaseControls(
+                            controls.add(
+                                FirebaseControls(
                                     config.child("tag").value.toString(),
                                     config.child("key").value as MutableList<String>,
                                     config.child("x").value.toString().toFloat(),
                                     config.child("y").value.toString().toFloat()
-                            ))
+                            )
+                            )
                         }
                         val firebaseLayout = FirebaseLayout(name, controls)
                         app?.getInstance()!!.cachedLayouts.add(firebaseLayout)

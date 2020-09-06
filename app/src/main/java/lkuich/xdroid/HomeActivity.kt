@@ -1,4 +1,4 @@
-package lkuich.controlhubclient
+package lkuich.xdroid
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
+import lkuich.xdroid.R
 
 class BroadcastReceiver(private val postExecute: (result: String) -> Unit): AsyncTask<Void, Void, String>() {
     private val PORT = 58385
@@ -101,7 +102,7 @@ class HomeActivity : FragmentActivity() {
     var app: ControlHubApplication? = null
 
     companion object {
-        val IP = "com.lkuich.controlhubclient.IP"
+        val IP = "com.lkuich.xdroid.IP"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

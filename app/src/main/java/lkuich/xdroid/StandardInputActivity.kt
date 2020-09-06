@@ -1,10 +1,11 @@
-package lkuich.controlhubclient
+package lkuich.xdroid
 
 import android.view.View
 import android.view.MotionEvent
 import android.widget.*
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
+import lkuich.xdroid.R
 import service.StandardInputGrpc
 import service.Services
 
@@ -130,7 +131,7 @@ class StandardInputActivity : BaseCanvasActivity() {
                 R.id.right_directional_pad -> {
                     val parsedKey: Int = parseKey(control.keys[0])
 
-                    analogStick(R.id.right_analog_inner, {x, y ->
+                    analogStick(R.id.right_analog_inner, { x, y ->
                         sendMouse(x.toInt(), y.toInt())
                     }, {
                         sendKey(parsedKey)

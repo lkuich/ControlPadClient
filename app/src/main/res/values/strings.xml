@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">ControlPad</string>
+    <string name="app_name">XDroid</string>
     <string name="grpc_port">50051</string>
-    <string name="no_wifi_error">At this time, in order to use ControlHub you must be connected to a WiFi network, otherwise you will not find any hosts to connect to!\n\nApplication will now close</string>
+    <string name="no_wifi_error">At this time, in order to use XDroid you must be connected to a WiFi network, otherwise you will not find any hosts to connect to!\n\nApplication will now close</string>
     <string name="xbox_desc">
-        Your system will recognize this layout as an actual Xbox 360 controller.
+        Your system will recognize this layout as an actual Xbox controller.
         This is the best configuration to use if your game supports it.
     </string>
     <string name="standard_desc">
@@ -18,7 +18,7 @@
     <string name="right_shoulder_tag">right_shoulder</string>
     <string name="menu_buttons_tag">menu_buttons</string>
     <string name="title_activity_customize_layout">Customize Layout</string>
-    <string name="web_client_id">1094341903373-cg761q6q7bngjvlc8221d84mie0mro2c.apps.googleusercontent.com</string>
+    <string name="web_client_id">771971133422-f2r1f8h1ufjbal07igljdamhsgd8vpd4.apps.googleusercontent.com</string>
     <string-array name="config_options_live">
         <item>Disconnect</item>
     </string-array>

@@ -1,4 +1,4 @@
-package lkuich.controlhubclient
+package lkuich.xdroid
 
 import io.grpc.stub.StreamObserver
 import service.Services

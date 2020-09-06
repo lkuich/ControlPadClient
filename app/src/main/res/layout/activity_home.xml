@@ -25,13 +25,12 @@
         android:textColor="@color/white"
         android:text="Select Config" />
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/inputType"
         android:layout_width="match_parent"
         android:layout_height="242dp"
         android:layout_marginBottom="24sp"
         android:layout_marginTop="12sp" />
-
 
     <LinearLayout
         android:layout_width="match_parent"
