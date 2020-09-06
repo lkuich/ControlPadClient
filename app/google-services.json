@@ -1,52 +1,45 @@
 {
   "project_info": {
-    "project_number": "1094341903373",
-    "firebase_url": "https://controlhub-b4c62.firebaseio.com",
-    "project_id": "controlhub-b4c62",
-    "storage_bucket": "controlhub-b4c62.appspot.com"
+    "project_number": "771971133422",
+    "firebase_url": "https://xdroid-c25af.firebaseio.com",
+    "project_id": "xdroid-c25af",
+    "storage_bucket": "xdroid-c25af.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1094341903373:android:ac6656d0f90d50ff",
+        "mobilesdk_app_id": "1:771971133422:android:90e5fb7ac51ced42b228ff",
         "android_client_info": {
-          "package_name": "lkuich.controlhubclient"
+          "package_name": "lkuich.xdroid"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1094341903373-986r1tbde8se9hdjtr97vbk4oh8c25ti.apps.googleusercontent.com",
+          "client_id": "771971133422-p4rc34sj3qs5q8qqr3o327qstgfea0n7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "lkuich.controlhubclient",
-            "certificate_hash": "9648a126e1900abea957957de6e5d35c43d7f0bc"
+            "package_name": "lkuich.xdroid",
+            "certificate_hash": "1ec71844c547b752686f8b705c5048b0a7eeac55"
           }
         },
         {
-          "client_id": "1094341903373-cg761q6q7bngjvlc8221d84mie0mro2c.apps.googleusercontent.com",
+          "client_id": "771971133422-f2r1f8h1ufjbal07igljdamhsgd8vpd4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD2ohjynESNnlY8VmSpt7Q95aZXZ7i6-P0"
+          "current_key": "AIzaSyB2cMDtv7AqktYMvcJs_utoSwL6DNkcChY"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "1094341903373-cg761q6q7bngjvlc8221d84mie0mro2c.apps.googleusercontent.com",
+              "client_id": "771971133422-f2r1f8h1ufjbal07igljdamhsgd8vpd4.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }
